@@ -65,7 +65,6 @@ public class MainActivity extends Activity
     private static Intent mainIntentForService;
 
     ProgressDialog mProgress;
-    ProgressDialog mProgress2;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
@@ -129,7 +128,6 @@ public class MainActivity extends Activity
 
         startServiceForMailCheck();
 
-        mProgress2 = new ProgressDialog(this);
     }
 
 
@@ -142,16 +140,12 @@ public class MainActivity extends Activity
         ServiceConnection serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                //mProgress2.setMessage("serviceConnected");
 
-                //mProgress2.hide();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
-                //mProgress2.setMessage("serviceDisconnected");
 
-                //mProgress2.hide();
             }
         };
         bindService(mainIntentForService,serviceConnection,0);
@@ -431,7 +425,6 @@ public class MainActivity extends Activity
         protected void onPreExecute() {
             mOutputText.setText("");
             mProgress.show();
-            //mProgress2.show();
         }
 
         public Message printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
