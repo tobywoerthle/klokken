@@ -1,0 +1,25 @@
+TODO
+------
+
+Messaging Ringer Android App
+
+-Service + Timer for email check
+-Search only today's emails
+-Ringer when email found
+-Dismiss button
+-Search Criteria
+-Slack Integration
+-SMS integration
+
+Useful links
+-Add JAR https://stackoverflow.com/questions/16641643/how-to-add-new-activity-to-existing-project-in-android-studio
+-Gmail quick start app https://developers.google.com/gmail/api/quickstart/android
+-Gmail API reference https://developers.google.com/gmail/api/v1/reference/
+https://developers.google.com/resources/api-libraries/documentation/gmail/v1/java/latest/com/google/api/services/gmail/model/Message.html
+-Gmail Scopes https://developers.google.com/gmail/api/auth/scopes
+-https://developers.google.com/gmail/api/v1/reference/users/messages/get
+-Java Mail Message http://geronimo.apache.org/maven/specs/geronimo-javamail_1.4_spec/1.6/apidocs/javax/mail/Message.html
+
+-https://developer.android.com/reference/android/Manifest.permission.html#READ_SMS
+-READ_SMS
+-ALT + Insert - https://stackoverflow.com/questions/23897215/how-to-automatically-generate-getters-and-setters-in-android-studio

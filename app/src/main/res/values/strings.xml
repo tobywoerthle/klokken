@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Klokken</string>
+    <string name="ServiceName">ServiceKlokken</string>
+</resources>
