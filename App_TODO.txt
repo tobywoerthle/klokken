@@ -3,7 +3,7 @@ TODO
 
 Messaging Ringer Android App
 
--Service + Timer for email check
+-Service + Alarm for email check
 -Search only today's emails
 -Ringer when email found
 -Dismiss button
@@ -23,3 +23,8 @@ https://developers.google.com/resources/api-libraries/documentation/gmail/v1/jav
 -https://developer.android.com/reference/android/Manifest.permission.html#READ_SMS
 -READ_SMS
 -ALT + Insert - https://stackoverflow.com/questions/23897215/how-to-automatically-generate-getters-and-setters-in-android-studio
+
+https://developer.android.com/training/scheduling/alarms.html
+https://stackoverflow.com/questions/10420358/android-periodic-background-service-advice
+https://developer.android.com/reference/android/app/Service.html#startForeground(int,%20android.app.Notification)
+http://www.vogella.com/tutorials/AndroidServices/article.html
