@@ -21,6 +21,7 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,6 +76,22 @@ public class MainActivity extends Activity
     private static final String BUTTON_TEXT = "Call Gmail API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = { GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY };
+
+    private BroadcastReceiver receiver = new BroadcastReceiver(){
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            Bundle bundle = intent.getExtras();
+            if (bundle != null){
+                String stringa = bundle.getString("Test");
+                Toast.makeText(MainActivity.this,"Download complete. Download URI: " + stringa, Toast.LENGTH_LONG).show();
+            }
+
+            Toast.makeText(MainActivity.this,"Partwo: " + "Test", Toast.LENGTH_LONG).show();
+
+        }
+    };
 
     /**
      * Create the main activity.
