@@ -25,6 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -33,14 +34,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +58,7 @@ import javax.mail.internet.MimeMessage;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 
 import java.io.ByteArrayInputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class MainActivity extends Activity
@@ -77,21 +80,7 @@ public class MainActivity extends Activity
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = { GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY };
 
-    private BroadcastReceiver receiver = new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            Bundle bundle = intent.getExtras();
-            if (bundle != null){
-                String stringa = bundle.getString("Test");
-                Toast.makeText(MainActivity.this,"Download complete. Download URI: " + stringa, Toast.LENGTH_LONG).show();
-            }
-
-            Toast.makeText(MainActivity.this,"Partwo: " + "Test", Toast.LENGTH_LONG).show();
-
-        }
-    };
+    private GmailMessageProcessor gmailMessageProcessor;
 
     /**
      * Create the main activity.
@@ -144,8 +133,37 @@ public class MainActivity extends Activity
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
+        makeBroadcastReceiver();
+
         startServiceForMailCheck();
 
+    }
+
+    private void makeBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("custom-event-name"));
+    }
+
+    // Our handler for received Intents. This will be called whenever an Intent
+    // with an action named "custom-event-name" is broadcasted.
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intentIn) {
+            // Get extra data included in the Intent
+            GmailMessagesTransfer inGmailMessageTransfer = (GmailMessagesTransfer) intentIn.getSerializableExtra("gmailMessages");
+
+            Map<String, String> messageMap = inGmailMessageTransfer.getMessageMap();
+            String pineapple = messageMap.get("Aloha");
+
+            Log.d("receiver", "Got message: " + pineapple);
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
     }
 
 
@@ -195,7 +213,11 @@ public class MainActivity extends Activity
         } else if (! isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
-            new MakeRequestTask(mCredential).execute();
+
+            gmailMessageProcessor = new GmailMessageProcessor();
+            gmailMessageProcessor.startMakeRequestTask(mCredential);
+
+            //new MakeRequestTask(mCredential).execute();
         }
     }
 

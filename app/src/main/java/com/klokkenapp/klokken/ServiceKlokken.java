@@ -3,6 +3,8 @@ package com.klokkenapp.klokken;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -21,7 +23,11 @@ public class ServiceKlokken extends IntentService {
         //Do Work Here
         Toast.makeText(this, "Handle Intent", Toast.LENGTH_SHORT).show();
         Map<String, String> sampleMap = new HashMap<>();
-        publishResults(sampleMap);
+        sampleMap.put("Aloha","Pineapple");
+
+        GmailMessagesTransfer sampleMessageTransfer = new GmailMessagesTransfer(sampleMap);
+
+        publishResults(sampleMessageTransfer);
     }
 
     @Override
@@ -40,9 +46,15 @@ public class ServiceKlokken extends IntentService {
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
     }
 
-    private void publishResults(Map<String,String> gmailMessageIDs){
-        Intent intent = new Intent("String");
-        intent.putExtra("Test", "test");
+    private void publishResults(GmailMessagesTransfer gmailMessageIDs){
+
+        Log.d("sender", "Broadcasting message");
+        System.out.println("publishResults");
+        Intent intent = new Intent("custom-event-name");
+        intent.putExtra("gmailMessages", gmailMessageIDs);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
         sendBroadcast(intent);
     }
 
