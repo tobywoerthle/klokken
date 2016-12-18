@@ -30,3 +30,6 @@ https://stackoverflow.com/questions/10420358/android-periodic-background-service
 https://developer.android.com/reference/android/app/Service.html#startForeground(int,%20android.app.Notification)
 http://www.vogella.com/tutorials/AndroidServices/article.html
 http://www.vogella.com/tutorials/AndroidTaskScheduling/article.html
+
+API Setup Google Console
+https://console.developers.google.com/apis/credentials?project=tactile-entry-147219

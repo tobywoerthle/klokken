@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -37,6 +38,10 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.StringUtils;
+import com.google.api.services.gmail.model.MessagePartHeader;
+
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -48,6 +53,8 @@ import static com.klokkenapp.klokken.MainActivity.REQUEST_PERMISSION_GET_ACCOUNT
 
 
 public class GmailMessageProcessor {
+
+    public static final String ClassName = "GmailMessageProcessor";
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
 
@@ -72,7 +79,7 @@ public class GmailMessageProcessor {
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.gmail.Gmail.Builder(
                     transport, jsonFactory, credential)
-                    .setApplicationName("Gmail API Android Quickstart")
+                    .setApplicationName("Klokken Message Checker and Ringer")
                     .build();
         }
 
@@ -109,11 +116,19 @@ public class GmailMessageProcessor {
                 labels.add(label.getName());
             }
 
-            Message m = printMessages(mService, user, "157ee48485e0cd54");
+            //Log.d(ClassName, "getDataFromApi.listResponse");
+            //System.out.println(listResponse);
+            //Log.d(ClassName, "getDataFromApi.listResponseMail");
+            //System.out.println(listResponseMail);
 
-            for (Message message : listResponseMail.getMessages()) {
+            // TODO: Ability to set mailbox
+            // ex. in:inbox OR in:Klokken
+
+            ListMessagesResponse queryMessageReturn = mService.users().messages().list(user).setQ("in:inbox is:unread").execute();
+
+            for (Message message : queryMessageReturn.getMessages()) {
+                printMessages(mService, user, message.getId());
                 messages.add(message.toPrettyString());
-
             }
 
             return messages;
@@ -130,19 +145,45 @@ public class GmailMessageProcessor {
                 throws IOException {
             Message message = service.users().messages().get(userId, messageId).execute();
 
+            Log.d(ClassName, "printMessages.message");
+
+            List<MessagePartHeader> headers = message.getPayload().getHeaders();
+
             //System.out.println("Message snippet: " + message.getSnippet());
-            System.out.println("Message To: " + message.getPayload().getHeaders().get(0).getValue());
-            System.out.println("Message Received: " + message.getPayload().getHeaders().get(1).getValue());
+
+            for (MessagePartHeader header: headers) {
+                if(header.getName().equals("From")){
+                    System.out.println("Message From: " + header.getValue());
+                }
+                else if(header.getName().equals("To")){
+                    System.out.println("Message To: " + header.getValue());
+                }
+                else if(header.getName().equals("Date")){
+                    System.out.println("Message Date: " + header.getValue());
+                }
+                else if(header.getName().equals("Received")){
+                    System.out.println("Message Received: " + header.getValue());
+                }
+                else if(header.getName().equals("Subject")){
+                    System.out.println("Message Subject: " + header.getValue());
+                }
+                else {
+                    //System.out.println("Other: " + header.getName() + " | " + header.getValue());
+                }
+
+            }
+
+            //Get full message body
+            //System.out.println("Message Body HTML: " + StringUtils.newStringUtf8(Base64.decodeBase64( message.getPayload().getBody().getData())));
 
 
-            System.out.println("Message Subject: " + message.getPayload().getHeaders().get(19).getValue());
-            System.out.println("Message From: " + message.getPayload().getHeaders().get(20).getValue());
-
+            /*
             try {
                 getMimeMessage(mService, userId, messageId);
             } catch (MessagingException e) {
                 e.printStackTrace();
             }
+            */
 
             return message;
         }
@@ -159,9 +200,9 @@ public class GmailMessageProcessor {
 
             MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
 
-            System.out.println(email.getSubject());
-            System.out.println(email.getFrom());
-            System.out.println(email.getReceivedDate());
+            //System.out.println("1"+email.getSubject());
+            //System.out.println("2"+email.getFrom());
+            //System.out.println("3"+email.getReceivedDate());
 
             return email;
         }
