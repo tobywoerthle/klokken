@@ -33,3 +33,6 @@ http://www.vogella.com/tutorials/AndroidTaskScheduling/article.html
 
 API Setup Google Console
 https://console.developers.google.com/apis/credentials?project=tactile-entry-147219
+
+Material Design Colour
+https://material.io/guidelines/style/color.html#color-color-palette

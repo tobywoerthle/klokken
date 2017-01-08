@@ -222,7 +222,8 @@ public class MainActivity extends Activity
             mOutputText.setText("No network connection available.");
         } else {
 
-            gmailMessageProcessor = new GmailMessageProcessor();
+
+            gmailMessageProcessor = new GmailMessageProcessor(getApplicationContext());
             gmailMessageProcessor.startMakeRequestTask(mCredential);
 
             //new MakeRequestTask(mCredential).execute();

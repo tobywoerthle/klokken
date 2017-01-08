@@ -6,8 +6,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -58,8 +62,15 @@ public class GmailMessageProcessor {
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
 
-    public GmailMessageProcessor() {
+    private static Context mainActivityContext = null;
+
+    public static Context getMainActivityContext() {
+        return mainActivityContext;
+    }
+
+    public GmailMessageProcessor(Context mainActivityContextIn) {
         //Contructor
+        mainActivityContext  = mainActivityContextIn;
     }
 
     public void startMakeRequestTask(GoogleAccountCredential mCredentialIn) {
@@ -126,9 +137,14 @@ public class GmailMessageProcessor {
 
             ListMessagesResponse queryMessageReturn = mService.users().messages().list(user).setQ("in:inbox is:unread").execute();
 
-            for (Message message : queryMessageReturn.getMessages()) {
-                printMessages(mService, user, message.getId());
-                messages.add(message.toPrettyString());
+
+            List<Message> messagesRaw = queryMessageReturn.getMessages();
+
+            if(messagesRaw != null && messagesRaw.isEmpty() == false){
+                for (Message message : messagesRaw) {
+                    printMessages(mService, user, message.getId());
+                    messages.add(message.toPrettyString());
+                }
             }
 
             return messages;
@@ -218,6 +234,14 @@ public class GmailMessageProcessor {
                 output.add(0, "Data retrieved using the Gmail API:");
                 System.out.println(TextUtils.join("\n", output));
             }
+
+            //TODO: Notification broadcast
+            //TODO: Dialog to dismiss/snooze
+            //TODO: Add custom ringtone
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            Ringtone r = RingtoneManager.getRingtone(mainActivityContext, notification);
+            r.play();
+            r.stop();
         }
 
         @Override
