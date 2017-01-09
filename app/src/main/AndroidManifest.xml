@@ -4,11 +4,23 @@
     android:versionCode="1"
     android:versionName="1.0">
 
+    <!-- Needed for mail/applications API checks -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Needed to check if cell network available -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Needed to check SMS' for alerts -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <!-- Needed to notify users of alerts -->
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Needed to check SMS' for alerts -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
+    <!-- Needed to set alaram at boot time -->
+    <uses-permission android:name="RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -32,6 +44,13 @@
             android:icon="@mipmap/ic_launcher"
             android:isolatedProcess="false"
             android:label="@string/ServiceName" />
+
+        <receiver android:name=".BootReceiverForTimer"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"></action>
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="com.google.android.gms.version"

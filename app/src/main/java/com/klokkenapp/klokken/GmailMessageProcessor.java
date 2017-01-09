@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -240,7 +241,11 @@ public class GmailMessageProcessor {
             //TODO: Add custom ringtone
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
             Ringtone r = RingtoneManager.getRingtone(mainActivityContext, notification);
+
             r.play();
+
+            SystemClock.sleep(3000);
+
             r.stop();
         }
 

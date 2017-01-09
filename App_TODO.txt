@@ -11,6 +11,14 @@ Messaging Ringer Android App
 -Slack Integration
 -SMS integration
 -FB Messenger Integration
+-Steam Integration
+-Discord Integration
+
+-Push notifications (Paid)
+https://developers.google.com/gmail/api/guides/push
+
+
+------------------------------------------------------
 
 Useful links
 -Add JAR https://stackoverflow.com/questions/16641643/how-to-add-new-activity-to-existing-project-in-android-studio
@@ -36,3 +44,6 @@ https://console.developers.google.com/apis/credentials?project=tactile-entry-147
 
 Material Design Colour
 https://material.io/guidelines/style/color.html#color-color-palette
+
+Intent Service
+https://code.tutsplus.com/tutorials/android-fundamentals-intentservice-basics--mobile-6183
