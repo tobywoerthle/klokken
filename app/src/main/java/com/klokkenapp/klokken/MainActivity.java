@@ -219,8 +219,8 @@ public class MainActivity extends Activity
         Context context = getApplicationContext();
 
         alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, MainActivity.class);
-        alarmIntent = PendingIntent.getActivity(context, AlarmWakeUp, intent, 0);
+        Intent intent = new Intent(context, ServiceKlokken.class);
+        alarmIntent = PendingIntent.getService(context, AlarmWakeUp, intent, 0);
 
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + 3000,

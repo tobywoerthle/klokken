@@ -24,6 +24,7 @@ public class ServiceKlokken extends IntentService {
         Toast.makeText(this, "Handle Intent", Toast.LENGTH_SHORT).show();
         Map<String, String> sampleMap = new HashMap<>();
         sampleMap.put("Aloha","Pineapple");
+        System.out.println("onHandleIntentCalled");
 
         GmailMessagesTransfer sampleMessageTransfer = new GmailMessagesTransfer(sampleMap);
 
