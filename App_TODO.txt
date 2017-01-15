@@ -47,3 +47,6 @@ https://material.io/guidelines/style/color.html#color-color-palette
 
 Intent Service
 https://code.tutsplus.com/tutorials/android-fundamentals-intentservice-basics--mobile-6183
+
+Design Ideas
+https://www.behance.net/gallery/46551053/Activity
