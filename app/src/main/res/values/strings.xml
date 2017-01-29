@@ -2,7 +2,8 @@
     <string name="app_name">Klokken</string>
     <string name="ServiceName">ServiceKlokken</string>
 
-    <string name="tool_bar_title_alerts">alerts</string>
+    <string name="tool_bar_title_alerts">Alerts</string>
+    <string name="button_call_alerts">Call</string>
 
     <string name="title_activity_settings">Settings</string>
 

@@ -10,8 +10,8 @@
 
     <Toolbar
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="#ff8f00">
+            android:layout_height="50dp"
+            android:background="@color/colorPrimaryLight">
 
         <ImageView
             android:layout_gravity="left"
@@ -26,7 +26,6 @@
 
         <TextView
             android:text="@string/tool_bar_title_alerts"
-            android:textAllCaps="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -55,21 +54,23 @@
             android:layout_width="match_parent"
             android:layout_height="0pt">
 
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?android:attr/colorBackground" />
-
             <Button
-                android:text="Call"
+                android:text="@string/button_call_alerts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="15dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:id="@+id/buttonManualGmailCheck"
+                android:background="@color/colorPrimaryLight"
                 android:onClick="buttonManualGmailCheckClick"
-                android:layout_gravity="bottom|right"/>
+                android:layout_gravity="bottom|right"
+                android:textColor="@color/colorPrimary" />
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?android:attr/colorBackground" />
 
         </FrameLayout>
 
