@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Klokken</string>
     <string name="ServiceName">ServiceKlokken</string>
+
+    <string name="tool_bar_title_alerts">alerts</string>
+
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->

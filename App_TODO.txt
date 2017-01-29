@@ -50,3 +50,6 @@ https://code.tutsplus.com/tutorials/android-fundamentals-intentservice-basics--m
 
 Design Ideas
 https://www.behance.net/gallery/46551053/Activity
+
+Icons
+https://material.io/icons/

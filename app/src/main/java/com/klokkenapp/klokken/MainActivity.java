@@ -270,11 +270,19 @@ public class MainActivity extends Activity
     public void buttonManualGmailCheckClick(View v)
     {
 
+        getResultsFromApi();
+        //setAlarm();
+    }
+
+    public void settingsClick(View v)
+    {
         Intent myIntent = new Intent(this, SettingsActivity.class);
         startActivity(myIntent);
+    }
 
-        //getResultsFromApi();
-        //setAlarm();
+    public void filterClick(View v)
+    {
+
     }
 
     private void makeBroadcastReceiver() {
