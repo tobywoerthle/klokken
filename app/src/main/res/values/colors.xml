@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#ff6f00</color>
     <color name="colorPrimaryLight">#ff8f00</color>
     <color name="colorAccent">#263238</color>
+    <color name="actionBarBackground">#ff8f00</color>
 </resources>
