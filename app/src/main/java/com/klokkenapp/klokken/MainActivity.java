@@ -44,6 +44,7 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
@@ -71,7 +72,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Map;
 import java.util.Properties;
 
-public class MainActivity extends Activity
+public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
@@ -106,6 +107,21 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_activity);
+
+        handleFragments(savedInstanceState, false);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+
 
         /*
         LinearLayout activityLayout = new LinearLayout(this);
@@ -160,6 +176,33 @@ public class MainActivity extends Activity
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void handleFragments(Bundle savedInstanceState, Boolean add) {
+        // https://developer.android.com/training/basics/fragments/fragment-ui.html
+        // Check that the activity is using the layout version with
+        // the fragment_container FrameLayout
+        if (findViewById(R.id.fragment_container) != null || add) {
+
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null && !add) {
+                return;
+            }
+
+            // Create a new Fragment to be placed in the activity layout
+            AlertListFragment newFragment = new AlertListFragment();
+
+            // In case this activity was started with special instructions from an
+            // Intent, pass the Intent's extras to the fragment as arguments
+            newFragment.setArguments(getIntent().getExtras());
+
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, newFragment).commit();
+
+        }
     }
 
     /**

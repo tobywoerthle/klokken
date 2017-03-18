@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.klokkenapp.klokken.MainActivity"
     android:orientation="vertical"
+    android:background="@color/colorBackgroundGrey"
     >
 
     <Toolbar
@@ -47,33 +48,46 @@
             android:background="@drawable/ic_settings_white_48dp"
             android:id="@+id/settingsIcon" />
 
-        </Toolbar>
-    
+    </Toolbar>
 
-        <FrameLayout
-            android:layout_weight="1"
+    <FrameLayout
+        android:layout_weight="85"
+        android:layout_width="match_parent"
+        android:layout_height="0pt">
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="0pt">
+            android:paddingTop="20dp"
+            android:layout_height="match_parent">
 
-            <Button
-                android:text="@string/button_call_alerts"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="15dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:id="@+id/buttonManualGmailCheck"
-                android:background="@color/colorPrimaryLight"
-                android:onClick="buttonManualGmailCheckClick"
-                android:layout_gravity="bottom|right"
-                android:elevation="2dp"
-                android:textColor="@color/colorPrimary" />
-
-            <ListView
+            <LinearLayout
+                android:id="@+id/fragment_container"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="?android:attr/colorBackground" />
+                android:layout_height="match_parent">
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
 
-        </FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:elevation="4dp"
+        android:background="@android:color/white"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:text="@string/button_call_alerts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/buttonManualGmailCheck"
+            android:background="@color/colorPrimaryLight"
+            android:onClick="buttonManualGmailCheckClick"
+            android:layout_gravity="bottom|right"
+            android:elevation="6dp"
+            android:textColor="@color/colorPrimary" />
+
+    </FrameLayout>
 
 </LinearLayout>
