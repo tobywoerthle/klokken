@@ -11,6 +11,3 @@ Feature Ideas
 -Search Criteria
 -Slack Integration
 -SMS integration
--FaceBook Messenger integration
--Steam Integration
--Discord Integration

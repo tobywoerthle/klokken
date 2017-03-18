@@ -1,43 +1,4 @@
 <resources>
-    <!-- Strings related to App -->
     <string name="app_name">Klokken</string>
     <string name="ServiceName">ServiceKlokken</string>
-
-    <!-- Strings related to Overview Alerts -->
-    <string name="tool_bar_title_alerts">Alerts</string>
-    <string name="button_call_alerts">Call</string>
-
-    <!-- Strings related to Settings -->
-    <string name="title_activity_settings">Settings</string>
-    <string name="pref_header_general">Gmail</string>
-
-    <string name="pref_title_gmail_auto_check">Auto-check for new emails</string>
-    <string name="pref_title_gmail_stop_auto_check_close">Stop auto-check when app closes</string>
-    <string name="pref_title_gmail_monitor_today">Only monitor today\'s emails</string>
-    <string name="pref_title_check_frequency">Check frequency (minutes)</string>
-
-    <string-array name="pref_check_frequency_titles">
-        <item>1 minute</item>
-        <item>3 minutes</item>
-        <item>5 minutes</item>
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-
-    <string-array name="pref_check_frequency_values">
-        <item>1</item>
-        <item>3</item>
-        <item>5</item>
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
-    </string-array>
-
 </resources>
