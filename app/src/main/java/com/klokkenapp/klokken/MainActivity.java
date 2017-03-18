@@ -1,7 +1,11 @@
 package com.klokkenapp.klokken;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
@@ -19,21 +23,32 @@ import com.google.api.services.gmail.model.*;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -54,9 +69,10 @@ import javax.mail.internet.MimeMessage;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 
 import java.io.ByteArrayInputStream;
+import java.util.Map;
 import java.util.Properties;
 
-public class MainActivity extends Activity
+public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
@@ -73,15 +89,41 @@ public class MainActivity extends Activity
 
     private static final String BUTTON_TEXT = "Call Gmail API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = { GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY };
+    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY};
+
+    private GmailMessageProcessor gmailMessageProcessor;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     /**
      * Create the main activity.
+     *
      * @param savedInstanceState previously saved instance data.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_activity);
+
+        handleFragments(savedInstanceState, false);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+        handleFragments(savedInstanceState, true);
+
+
+        /*
         LinearLayout activityLayout = new LinearLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -120,16 +162,202 @@ public class MainActivity extends Activity
         mProgress.setMessage("Calling Gmail API ...");
 
         setContentView(activityLayout);
+        */
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
+        makeBroadcastReceiver();
+
         startServiceForMailCheck();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    private void handleFragments(Bundle savedInstanceState, Boolean add) {
+        // https://developer.android.com/training/basics/fragments/fragment-ui.html
+        // Check that the activity is using the layout version with
+        // the fragment_container FrameLayout
+        if (findViewById(R.id.fragment_container) != null || add) {
+
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null && !add) {
+                return;
+            }
+
+            // Create a new Fragment to be placed in the activity layout
+            AlertListFragment newFragment = new AlertListFragment();
+
+            // In case this activity was started with special instructions from an
+            // Intent, pass the Intent's extras to the fragment as arguments
+            newFragment.setArguments(getIntent().getExtras());
+
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, newFragment).commit();
+
+        }
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
+    }
+
+    public class BootReceiverForTimer extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
+                setAlarm();
+            }
+        }
+    }
+
+
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
+    private static final int AlarmWakeUp = 1;
+
+    //TODO: Figure out alarm
+
+    private void setAlarm() {
+
+        Context context = getApplicationContext();
+
+        alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, ServiceKlokken.class);
+        alarmIntent = PendingIntent.getService(context, AlarmWakeUp, intent, 0);
+
+        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + 3000,
+                3000, alarmIntent);
+        System.out.println("Alarm set!");
+
+        cancelAlarm();
+        System.out.println("Alarm cancelled");
+    }
+
+    private void cancelAlarm() {
+        // If the alarm has been set, cancel it.
+        if (alarmMgr != null) {
+            alarmMgr.cancel(alarmIntent);
+        }
+    }
+
+    /* --------------- Boot Receiver* ---------------*/
+
+    //TODO: enable/disable boot receiver via settings
+
+    private void enableBootReceiver() {
+        //Ensure boot receiver stays enabled, even after reboot
+        Context context = getApplicationContext();
+        ComponentName receiverForTimer = new ComponentName(context, BootReceiverForTimer.class);
+
+        PackageManager pm = context.getPackageManager();
+        pm.setComponentEnabledSetting(receiverForTimer, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+
+    private void disableBootReceiver() {
+        //Disables the boot receiver, even after reboot
+        Context context = getApplicationContext();
+        ComponentName receiverForTimer = new ComponentName(context, BootReceiverForTimer.class);
+        PackageManager pm = context.getPackageManager();
+
+        pm.setComponentEnabledSetting(receiverForTimer, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+    }
+
+
+    /**
+     * Calls {@link #getResultsFromApi()}
+     *
+     * @param v the view that called the function
+     */
+
+    public void buttonManualGmailCheckClick(View v)
+    {
+
+        getResultsFromApi();
+        //setAlarm();
+    }
+
+    public void settingsClick(View v)
+    {
+        Intent myIntent = new Intent(this, SettingsActivity.class);
+        startActivity(myIntent);
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //String syncConnPref = sharedPref.getString(SettingsActivity.KEY_PREF_SYNC_CONN, "");
+    }
+
+    public void filterClick(View v)
+    {
 
     }
 
+    private void makeBroadcastReceiver() {
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("custom-event-name"));
+    }
+
+    // Our handler for received Intents. This will be called whenever an Intent
+    // with an action named "custom-event-name" is broadcasted.
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intentIn) {
+            // Get extra data included in the Intent
+            GmailMessagesTransfer inGmailMessageTransfer = (GmailMessagesTransfer) intentIn.getSerializableExtra("gmailMessages");
+
+            Map<String, String> messageMap = inGmailMessageTransfer.getMessageMap();
+            String pineapple = messageMap.get("Aloha");
+
+            Log.d("receiver", "Got message: " + pineapple);
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
+    }
 
 
     //Make New Service
@@ -148,16 +376,17 @@ public class MainActivity extends Activity
 
             }
         };
-        bindService(mainIntentForService,serviceConnection,0);
+        bindService(mainIntentForService, serviceConnection, 0);
     }
 
     private void stopServiceForMailCheck() {
         stopService(mainIntentForService);
     }
 
-    private void checkService(){
+    private void checkService() {
 
     }
+
 
     //" Other application components can then call bindService() to retrieve the interface and begin calling methods on the service"
 
@@ -170,14 +399,22 @@ public class MainActivity extends Activity
      * appropriate.
      */
     private void getResultsFromApi() {
-        if (! isGooglePlayServicesAvailable()) {
+
+        startServiceForMailCheck();
+
+        if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
-        } else if (! isDeviceOnline()) {
+        } else if (!isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
-            new MakeRequestTask(mCredential).execute();
+
+
+            gmailMessageProcessor = new GmailMessageProcessor(getApplicationContext());
+            gmailMessageProcessor.startMakeRequestTask(mCredential);
+
+            //new MakeRequestTask(mCredential).execute();
         }
     }
 
@@ -220,17 +457,18 @@ public class MainActivity extends Activity
      * Called when an activity launched here (specifically, AccountPicker
      * and authorization) exits, giving you the requestCode you started it with,
      * the resultCode it returned, and any additional data from it.
+     *
      * @param requestCode code indicating which activity result is incoming.
-     * @param resultCode code indicating the result of the incoming
-     *     activity result.
-     * @param data Intent (containing result data) returned by incoming
-     *     activity result.
+     * @param resultCode  code indicating the result of the incoming
+     *                    activity result.
+     * @param data        Intent (containing result data) returned by incoming
+     *                    activity result.
      */
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
+        switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
                     mOutputText.setText(
@@ -266,11 +504,12 @@ public class MainActivity extends Activity
 
     /**
      * Respond to requests for permissions at runtime for API 23 and above.
-     * @param requestCode The request code passed in
-     *     requestPermissions(android.app.Activity, String, int, String[])
-     * @param permissions The requested permissions. Never null.
+     *
+     * @param requestCode  The request code passed in
+     *                     requestPermissions(android.app.Activity, String, int, String[])
+     * @param permissions  The requested permissions. Never null.
      * @param grantResults The grant results for the corresponding permissions
-     *     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
+     *                     which is either PERMISSION_GRANTED or PERMISSION_DENIED. Never null.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -284,9 +523,10 @@ public class MainActivity extends Activity
     /**
      * Callback for when a permission is granted using the EasyPermissions
      * library.
+     *
      * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
+     *                    permission
+     * @param list        The requested permission list. Never null.
      */
     @Override
     public void onPermissionsGranted(int requestCode, List<String> list) {
@@ -296,9 +536,10 @@ public class MainActivity extends Activity
     /**
      * Callback for when a permission is denied using the EasyPermissions
      * library.
+     *
      * @param requestCode The request code associated with the requested
-     *         permission
-     * @param list The requested permission list. Never null.
+     *                    permission
+     * @param list        The requested permission list. Never null.
      */
     @Override
     public void onPermissionsDenied(int requestCode, List<String> list) {
@@ -307,6 +548,7 @@ public class MainActivity extends Activity
 
     /**
      * Checks whether the device currently has a network connection.
+     *
      * @return true if the device has a network connection, false otherwise.
      */
     private boolean isDeviceOnline() {
@@ -318,8 +560,9 @@ public class MainActivity extends Activity
 
     /**
      * Check that Google Play services APK is installed and up to date.
+     *
      * @return true if Google Play Services is available and up to
-     *     date on this device; false otherwise.
+     * date on this device; false otherwise.
      */
     private boolean isGooglePlayServicesAvailable() {
         GoogleApiAvailability apiAvailability =
@@ -347,8 +590,9 @@ public class MainActivity extends Activity
     /**
      * Display an error dialog showing that Google Play Services is missing
      * or out of date.
+     *
      * @param connectionStatusCode code describing the presence (or lack of)
-     *     Google Play Services on this device.
+     *                             Google Play Services on this device.
      */
     void showGooglePlayServicesAvailabilityErrorDialog(
             final int connectionStatusCode) {
@@ -360,145 +604,4 @@ public class MainActivity extends Activity
         dialog.show();
     }
 
-    /**
-     * An asynchronous task that handles the Gmail API call.
-     * Placing the API calls in their own task ensures the UI stays responsive.
-     */
-    private class MakeRequestTask extends AsyncTask<Void, Void, List<String>> {
-        private com.google.api.services.gmail.Gmail mService = null;
-        private Exception mLastError = null;
-
-        public MakeRequestTask(GoogleAccountCredential credential) {
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.gmail.Gmail.Builder(
-                    transport, jsonFactory, credential)
-                    .setApplicationName("Gmail API Android Quickstart")
-                    .build();
-        }
-
-        /**
-         * Background task to call Gmail API.
-         * @param params no parameters needed for this task.
-         */
-        @Override
-        protected List<String> doInBackground(Void... params) {
-            try {
-                return getDataFromApi();
-            } catch (Exception e) {
-                mLastError = e;
-                cancel(true);
-                return null;
-            }
-        }
-
-        /**
-         * Fetch a list of Gmail labels attached to the specified account.
-         * @return List of Strings labels.
-         * @throws IOException
-         */
-        private List<String> getDataFromApi() throws IOException {
-            // Get the labels in the user's account.
-            String user = "me";
-            List<String> labels = new ArrayList<String>();
-            List<String> messages = new ArrayList<String>();
-            ListLabelsResponse listResponse =
-                    mService.users().labels().list(user).execute();
-            ListMessagesResponse listResponseMail =
-                    mService.users().messages().list(user).execute();
-            for (Label label : listResponse.getLabels()) {
-                labels.add(label.getName());
-            }
-
-            Message m = printMessages(mService, user, "157ee48485e0cd54");
-
-            for (Message message : listResponseMail.getMessages()) {
-                messages.add(message.toPrettyString());
-
-            }
-
-            return messages;
-        }
-
-
-        @Override
-        protected void onPreExecute() {
-            mOutputText.setText("");
-            mProgress.show();
-        }
-
-        public Message printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
-                throws IOException {
-            Message message = service.users().messages().get(userId, messageId).execute();
-
-            //System.out.println("Message snippet: " + message.getSnippet());
-            System.out.println("Message To: " + message.getPayload().getHeaders().get(0).getValue());
-            System.out.println("Message Received: " + message.getPayload().getHeaders().get(1).getValue());
-
-
-            System.out.println("Message Subject: " + message.getPayload().getHeaders().get(19).getValue());
-            System.out.println("Message From: " + message.getPayload().getHeaders().get(20).getValue());
-
-            try {
-                getMimeMessage(mService, userId, messageId);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
-
-            return message;
-        }
-
-        public MimeMessage getMimeMessage(com.google.api.services.gmail.Gmail service, String userId, String messageId)
-                throws IOException, MessagingException {
-            Message message = service.users().messages().get(userId, messageId).setFormat("raw").execute();
-
-            Base64 base64Url = new Base64(true);
-            byte[] emailBytes = base64Url.decodeBase64(message.getRaw());
-
-            Properties props = new Properties();
-            Session session = Session.getDefaultInstance(props, null);
-
-            MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
-
-            System.out.println(email.getSubject());
-            System.out.println(email.getFrom());
-            System.out.println(email.getReceivedDate());
-
-            return email;
-        }
-
-
-
-        @Override
-        protected void onPostExecute(List<String> output) {
-            mProgress.hide();
-            if (output == null || output.size() == 0) {
-                mOutputText.setText("No results returned.");
-            } else {
-                output.add(0, "Data retrieved using the Gmail API:");
-                mOutputText.setText(TextUtils.join("\n", output));
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mProgress.hide();
-            if (mLastError != null) {
-                if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    showGooglePlayServicesAvailabilityErrorDialog(
-                            ((GooglePlayServicesAvailabilityIOException) mLastError)
-                                    .getConnectionStatusCode());
-                } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    startActivityForResult(
-                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                            MainActivity.REQUEST_AUTHORIZATION);
-                } else {
-                    mOutputText.setText("The following error occurred:\n"
-                            + mLastError.getMessage());
-                }
-            } else {
-                mOutputText.setText("Request cancelled.");
-            }
-        }
-    }
 }
