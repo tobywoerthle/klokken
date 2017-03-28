@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -14,6 +15,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -239,14 +241,19 @@ public class GmailMessageProcessor {
             //TODO: Notification broadcast
             //TODO: Dialog to dismiss/snooze
             //TODO: Add custom ringtone
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            Ringtone r = RingtoneManager.getRingtone(mainActivityContext, notification);
 
-            r.play();
+            AudioManager audio = (AudioManager) mainActivityContext.getSystemService(Context.AUDIO_SERVICE);
 
-            SystemClock.sleep(3000);
-
-            r.stop();
+            switch(audio.getRingerMode() ){
+                case AudioManager.RINGER_MODE_NORMAL:
+                    ringPhoneAlert();
+                    break;
+                case AudioManager.RINGER_MODE_SILENT:
+                    break;
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    vibratePhoneAlert();
+                    break;
+            }
         }
 
         @Override
@@ -271,4 +278,31 @@ public class GmailMessageProcessor {
             }
         }
     }
+
+    private void vibratePhoneAlert() {
+        Vibrator v = (Vibrator) mainActivityContext.getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 400 milliseconds
+        if (v.hasVibrator()) {
+            //v.vibrate(400);
+
+            // Start without a delay
+            // Each element then alternates between vibrate, sleep, vibrate, sleep...
+            //long[] pattern = {0, 10, 10, 10, 10, 20, 10, 30, 10, 50, 10, 80, 10, 130, 10, 210, 10};
+            long[] pattern = {0, 100, 10, 100, 10, 100, 10, 100, 300, 100, 300, 100};
+
+            // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
+            v.vibrate(pattern, -1);
+        }
+    }
+
+    private void ringPhoneAlert() {
+        //stop should be called by other method, once alert is acknowledged
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE );
+        Ringtone r = RingtoneManager.getRingtone(mainActivityContext, notification);
+
+        //r.play();
+        //SystemClock.sleep(9000);
+        //r.stop();
+    }
+
 }
