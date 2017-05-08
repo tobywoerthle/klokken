@@ -90,6 +90,7 @@ public class MainActivity extends FragmentActivity
     private static final String BUTTON_TEXT = "Call Gmail API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY};
+    private static Bundle savedInstanceState;
 
     private GmailMessageProcessor gmailMessageProcessor;
     /**
@@ -101,28 +102,20 @@ public class MainActivity extends FragmentActivity
     /**
      * Create the main activity.
      *
-     * @param savedInstanceState previously saved instance data.
+     * @param inSavedInstanceState previously saved instance data.
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle inSavedInstanceState) {
+        savedInstanceState = inSavedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_activity);
 
-        handleFragments(savedInstanceState, false);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
-        handleFragments(savedInstanceState, true);
+        //addFragments();
+        //addFragments();
+        //handleFragments(savedInstanceState, true);
 
-
+        //handleFragments(savedInstanceState, false);
+        //handleFragments(savedInstanceState, true);
         /*
         LinearLayout activityLayout = new LinearLayout(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -178,7 +171,7 @@ public class MainActivity extends FragmentActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    private void handleFragments(Bundle savedInstanceState, Boolean add) {
+    public void handleFragments(Boolean add) {
         // https://developer.android.com/training/basics/fragments/fragment-ui.html
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -411,10 +404,8 @@ public class MainActivity extends FragmentActivity
         } else {
 
 
-            gmailMessageProcessor = new GmailMessageProcessor(getApplicationContext());
-            gmailMessageProcessor.startMakeRequestTask(mCredential);
-
-            //new MakeRequestTask(mCredential).execute();
+            gmailMessageProcessor = new GmailMessageProcessor(this);
+            gmailMessageProcessor.startMakeRequestTask();
         }
     }
 

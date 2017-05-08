@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Field;
+
 public class AlertListFragment extends MainActivityFragments {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -12,4 +14,5 @@ public class AlertListFragment extends MainActivityFragments {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.alertlist_view, container, false);
     }
+
 }
