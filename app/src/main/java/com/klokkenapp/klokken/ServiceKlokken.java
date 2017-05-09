@@ -7,12 +7,16 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ServiceKlokken extends IntentService {
 
     private IBinder mainBinder = new ServiceKlokkenClientCommunication(this);
+    private GmailMessageProcessor gmailMessageProcessor;
 
     public ServiceKlokken() {
         super("ServiceKlokken");
@@ -21,12 +25,20 @@ public class ServiceKlokken extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         //Do Work Here
+
+        GmailAuthTransfer authTransfer = (GmailAuthTransfer) intent.getSerializableExtra("authTransfer");
+        GoogleAccountCredential accountCredential = authTransfer.getCredential();
+
+        gmailMessageProcessor = new GmailMessageProcessor(accountCredential);
+        gmailMessageProcessor.startMakeRequestTask();
+        Map<String, GmailMessage> messages = gmailMessageProcessor.getMessages();
+
         Toast.makeText(this, "Handle Intent", Toast.LENGTH_SHORT).show();
-        Map<String, String> sampleMap = new HashMap<>();
-        sampleMap.put("Aloha","Pineapple");
+        //HashMap<String, GmailMessage> sampleMap = new HashMap<>();
+        //sampleMap.put("Aloha","Pineapple");
         System.out.println("onHandleIntentCalled");
 
-        GmailMessagesTransfer sampleMessageTransfer = new GmailMessagesTransfer(sampleMap);
+        GmailMessagesTransfer sampleMessageTransfer = new GmailMessagesTransfer(messages);
 
         publishResults(sampleMessageTransfer);
     }
@@ -47,12 +59,12 @@ public class ServiceKlokken extends IntentService {
         Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
     }
 
-    private void publishResults(GmailMessagesTransfer gmailMessageIDs){
+    private void publishResults(GmailMessagesTransfer gmailMessages){
 
         Log.d("sender", "Broadcasting message");
         System.out.println("publishResults");
         Intent intent = new Intent("custom-event-name");
-        intent.putExtra("gmailMessages", gmailMessageIDs);
+        intent.putExtra("gmailMessages", gmailMessages);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 

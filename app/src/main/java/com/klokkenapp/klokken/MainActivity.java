@@ -6,23 +6,14 @@ import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 
 import com.google.api.services.gmail.GmailScopes;
 
-import com.google.api.services.gmail.model.*;
-
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -35,10 +26,10 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -46,37 +37,27 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
-
-import java.io.ByteArrayInputStream;
 import java.util.Map;
-import java.util.Properties;
 
 public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
+
+    public static final String ClassName = "MainActivity";
 
     private static Intent mainIntentForService;
 
@@ -92,7 +73,6 @@ public class MainActivity extends FragmentActivity
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY};
     private static Bundle savedInstanceState;
 
-    private GmailMessageProcessor gmailMessageProcessor;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -171,7 +151,7 @@ public class MainActivity extends FragmentActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-    public void handleFragments(Boolean add) {
+    public void handleFragments(Boolean add, GmailMessage inGmailMessage) {
         // https://developer.android.com/training/basics/fragments/fragment-ui.html
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -338,12 +318,52 @@ public class MainActivity extends FragmentActivity
             // Get extra data included in the Intent
             GmailMessagesTransfer inGmailMessageTransfer = (GmailMessagesTransfer) intentIn.getSerializableExtra("gmailMessages");
 
-            Map<String, String> messageMap = inGmailMessageTransfer.getMessageMap();
-            String pineapple = messageMap.get("Aloha");
+            HashMap<String, GmailMessage> messageMap = (HashMap<String, GmailMessage>) inGmailMessageTransfer.getMessageMap();
 
-            Log.d("receiver", "Got message: " + pineapple);
+            if(messageMap != null){
+
+                System.out.print("NOT NULL");
+
+                for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()){
+                    GmailMessage curGmailMessage = entry.getValue();
+                    Log.d(ClassName, "BroadcastReceiver.MessageSubject");
+                    System.out.println("MessageSubject: "+curGmailMessage.getMessageSubject());
+                    //handleFragments(true, curGmailMessage);
+                }
+                Log.d(ClassName, "BroadcastReceiver.receivedMessages");
+                playAudio();
+            }
+
+            //handleFragments(true, null);
+            //handleFragments(true, null);
+            //handleFragments(true, null);
+
+            //String pineapple = messageMap.get("Aloha");
+
         }
     };
+
+    private void playAudio() {
+        //TODO: Notification broadcast
+        //TODO: Dialog to dismiss/snooze
+        //TODO: Add custom ringtone
+
+        Context context = getApplicationContext();
+
+        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        AlertAudio alertAudio = new AlertAudio(context);
+
+        switch(audio.getRingerMode() ){
+            case AudioManager.RINGER_MODE_NORMAL:
+                alertAudio.ringPhoneAlert();
+                break;
+            case AudioManager.RINGER_MODE_VIBRATE:
+                alertAudio.vibratePhoneAlert();
+                break;
+            case AudioManager.RINGER_MODE_SILENT:
+                break;
+        }
+    }
 
     @Override
     protected void onDestroy() {
@@ -352,10 +372,11 @@ public class MainActivity extends FragmentActivity
         super.onDestroy();
     }
 
-
     //Make New Service
     private void startServiceForMailCheck() {
         mainIntentForService = new Intent(this, ServiceKlokken.class);
+        GmailAuthTransfer authTransfer = new GmailAuthTransfer(mCredential);
+        mainIntentForService.putExtra("authTransfer", authTransfer);
         startService(mainIntentForService);
         //PendingIntent pendingIntendt = new PendingIntent();
         ServiceConnection serviceConnection = new ServiceConnection() {
@@ -393,8 +414,6 @@ public class MainActivity extends FragmentActivity
      */
     private void getResultsFromApi() {
 
-        startServiceForMailCheck();
-
         if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
@@ -402,10 +421,8 @@ public class MainActivity extends FragmentActivity
         } else if (!isDeviceOnline()) {
             mOutputText.setText("No network connection available.");
         } else {
-
-
-            gmailMessageProcessor = new GmailMessageProcessor(this);
-            gmailMessageProcessor.startMakeRequestTask();
+            //Call service manually
+            startServiceForMailCheck();
         }
     }
 

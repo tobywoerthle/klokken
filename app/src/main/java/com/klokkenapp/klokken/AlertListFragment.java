@@ -15,4 +15,6 @@ public class AlertListFragment extends MainActivityFragments {
         return inflater.inflate(R.layout.alertlist_view, container, false);
     }
 
+
+
 }
