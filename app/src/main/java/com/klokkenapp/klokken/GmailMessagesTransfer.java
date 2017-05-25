@@ -6,17 +6,17 @@ import java.util.Map;
 
 public class GmailMessagesTransfer implements Serializable {
 
-    Map<String, String> messageMap = new HashMap<>();
+    Map<String, GmailMessage> messageMap = new HashMap<>();
 
-    public GmailMessagesTransfer(Map<String, String> messageMap) {
+    public GmailMessagesTransfer(Map<String, GmailMessage> messageMap) {
         this.messageMap = messageMap;
     }
 
-    public Map<String, String> getMessageMap() {
+    public Map<String, GmailMessage> getMessageMap() {
         return messageMap;
     }
 
-    public void setMessageMap(Map<String, String> messageMap) {
+    public void setMessageMap(Map<String, GmailMessage> messageMap) {
         this.messageMap = messageMap;
     }
 
