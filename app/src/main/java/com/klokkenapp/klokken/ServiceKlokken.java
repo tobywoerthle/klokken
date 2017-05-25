@@ -33,13 +33,14 @@ public class ServiceKlokken extends IntentService {
         gmailMessageProcessor.startMakeRequestTask();
         Map<String, GmailMessage> messages = gmailMessageProcessor.getMessages();
 
+        //ThreadID
+        //System.out.println(android.os.Process.getThreadPriority(android.os.Process.myTid()));
+
         Toast.makeText(this, "Handle Intent", Toast.LENGTH_SHORT).show();
         //HashMap<String, GmailMessage> sampleMap = new HashMap<>();
         //sampleMap.put("Aloha","Pineapple");
-        System.out.println("onHandleIntentCalled");
 
         GmailMessagesTransfer sampleMessageTransfer = new GmailMessagesTransfer(messages);
-
         publishResults(sampleMessageTransfer);
     }
 
@@ -62,7 +63,6 @@ public class ServiceKlokken extends IntentService {
     private void publishResults(GmailMessagesTransfer gmailMessages){
 
         Log.d("sender", "Broadcasting message");
-        System.out.println("publishResults");
         Intent intent = new Intent("custom-event-name");
         intent.putExtra("gmailMessages", gmailMessages);
 
@@ -70,7 +70,4 @@ public class ServiceKlokken extends IntentService {
 
         sendBroadcast(intent);
     }
-
-
-
 }

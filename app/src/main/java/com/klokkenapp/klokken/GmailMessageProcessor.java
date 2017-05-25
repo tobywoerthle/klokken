@@ -105,16 +105,10 @@ public class GmailMessageProcessor extends MainActivity {
                 labels.add(label.getName());
             }
 
-            //Log.d(ClassName, "getDataFromApi.listResponse");
-            //System.out.println(listResponse);
-            //Log.d(ClassName, "getDataFromApi.listResponseMail");
-            //System.out.println(listResponseMail);
-
             // TODO: Ability to set mailbox
             // ex. in:inbox OR in:Klokken
 
             ListMessagesResponse queryMessageReturn = mService.users().messages().list(user).setQ("in:inbox is:unread").execute();
-
 
             List<Message> messagesRaw = queryMessageReturn.getMessages();
 
@@ -125,13 +119,12 @@ public class GmailMessageProcessor extends MainActivity {
                     Log.d(ClassName, "getDataFromApi.messageIter");
 
                     GmailMessage curMessage = printMessages(mService, user, message.getId());
+
                     messagesToTransfer.put(message.getId(),curMessage);
 
-                    messages.add(message.toPrettyString());
+                    //messages.add(message.toPrettyString());
                 }
             }
-
-            messagesToTransfer = curMessages;
 
             return messages;
         }

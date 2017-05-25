@@ -322,16 +322,14 @@ public class MainActivity extends FragmentActivity
 
             if(messageMap != null){
 
-                System.out.print("NOT NULL");
-
                 for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()){
                     GmailMessage curGmailMessage = entry.getValue();
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject");
-                    System.out.println("MessageSubject: "+curGmailMessage.getMessageSubject());
-                    //handleFragments(true, curGmailMessage);
+                    handleFragments(true, curGmailMessage);
                 }
                 Log.d(ClassName, "BroadcastReceiver.receivedMessages");
-                playAudio();
+                //Play audio in different thread
+                //playAudio();
             }
 
             //handleFragments(true, null);

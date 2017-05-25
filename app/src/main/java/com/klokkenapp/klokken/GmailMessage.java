@@ -1,12 +1,13 @@
 package com.klokkenapp.klokken;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Created by Toby on 5/8/2017.
  */
 
-public class GmailMessage {
+public class GmailMessage implements Serializable {
 
     private String messageFrom;
     private String messageTo;
