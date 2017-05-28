@@ -42,6 +42,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +73,7 @@ public class MainActivity extends FragmentActivity
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY};
     private static Bundle savedInstanceState;
+    private static List<String> allDisplayedMessages = new ArrayList<String>();;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -100,7 +102,6 @@ public class MainActivity extends FragmentActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
         makeBroadcastReceiver();
-        startServiceForMailCheck();
         getResultsFromApi();
     }
 
@@ -113,25 +114,39 @@ public class MainActivity extends FragmentActivity
         // the fragment_container FrameLayout
         if (findViewById(R.id.fragment_container) != null || add) {
 
-            // However, if we're being restored from a previous state,
-            // then we don't need to do anything and should return or else
-            // we could end up with overlapping fragments.
-            if (savedInstanceState != null && !add) {
-                return;
+            String curMessageID = inGmailMessage.getMessageID();
+            Boolean messageAlreadyDisplayed = false;
+
+            for(String curID: allDisplayedMessages){
+                if(curID.equals(curMessageID)){
+                    messageAlreadyDisplayed = true;
+                    break;
+                }
             }
 
-            // Create a new Fragment to be placed in the activity layout
-            AlertListFragment newFragment = new AlertListFragment();
-            //Set the Gmail message that contains the information for the fragment
-            newFragment.setGmailMessage(inGmailMessage);
+            if(messageAlreadyDisplayed == false){
+                // However, if we're being restored from a previous state,
+                // then we don't need to do anything and should return or else
+                // we could end up with overlapping fragments.
+                if (savedInstanceState != null && !add) {
+                    return;
+                }
 
-            // In case this activity was started with special instructions from an
-            // Intent, pass the Intent's extras to the fragment as arguments
-            newFragment.setArguments(getIntent().getExtras());
+                // Create a new Fragment to be placed in the activity layout
+                AlertListFragment newFragment = new AlertListFragment();
+                //Set the Gmail message that contains the information for the fragment
+                newFragment.setGmailMessage(inGmailMessage);
 
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, newFragment).commit();
+                // In case this activity was started with special instructions from an
+                // Intent, pass the Intent's extras to the fragment as arguments
+                newFragment.setArguments(getIntent().getExtras());
+
+                // Add the fragment to the 'fragment_container' FrameLayout
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, newFragment).commit();
+
+                allDisplayedMessages.add(curMessageID);
+            }
         }
     }
 

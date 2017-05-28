@@ -9,12 +9,21 @@ import java.util.Map;
 
 public class GmailMessage implements Serializable {
 
+    private String messageID;
     private String messageFrom;
     private String messageTo;
     private String messageDate;
     private String messageReceived;
     private String messageSubject;
     private String messageBody;
+
+    public String getMessageID() {
+        return messageID;
+    }
+
+    public void setMessageID(String messageID) {
+        this.messageID = messageID;
+    }
 
     public String getMessageFrom() {
         return messageFrom;

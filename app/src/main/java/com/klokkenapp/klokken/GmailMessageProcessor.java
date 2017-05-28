@@ -152,17 +152,15 @@ public class GmailMessageProcessor extends MainActivity {
         public GmailMessage printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
                 throws IOException {
 
-            boolean messageDebug = true;
+            boolean messageDebug = false;
 
             Message message = service.users().messages().get(userId, messageId).execute();
-
             Log.d(ClassName, "printMessages.message");
 
             List<MessagePartHeader> headers = message.getPayload().getHeaders();
 
-            System.out.println("Message snippet: " + message.getSnippet());
-
             GmailMessage gmailMessage = new GmailMessage();
+            gmailMessage.setMessageID(messageId);
 
             for (MessagePartHeader header: headers) {
                 if(header.getName().equals("From")){
