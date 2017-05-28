@@ -90,68 +90,24 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_activity);
 
-        //addFragments();
-        //addFragments();
-        //handleFragments(savedInstanceState, true);
-
-        //handleFragments(savedInstanceState, false);
-        //handleFragments(savedInstanceState, true);
-        /*
-        LinearLayout activityLayout = new LinearLayout(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        activityLayout.setLayoutParams(lp);
-        activityLayout.setOrientation(LinearLayout.VERTICAL);
-        activityLayout.setPadding(16, 16, 16, 16);
-
-        ViewGroup.LayoutParams tlp = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        mCallApiButton = new Button(this);
-        mCallApiButton.setText(BUTTON_TEXT);
-        mCallApiButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCallApiButton.setEnabled(false);
-                mOutputText.setText("");
-                getResultsFromApi();
-                mCallApiButton.setEnabled(true);
-            }
-        });
-        activityLayout.addView(mCallApiButton);
-
-        mOutputText = new TextView(this);
-        mOutputText.setLayoutParams(tlp);
-        mOutputText.setPadding(16, 16, 16, 16);
-        mOutputText.setVerticalScrollBarEnabled(true);
-        mOutputText.setMovementMethod(new ScrollingMovementMethod());
-        mOutputText.setText(
-                "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
-        activityLayout.addView(mOutputText);
-
-        mProgress = new ProgressDialog(this);
-        mProgress.setMessage("Calling Gmail API ...");
-
-        setContentView(activityLayout);
-        */
-
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
                 getApplicationContext(), Arrays.asList(SCOPES))
                 .setBackOff(new ExponentialBackOff());
 
-        makeBroadcastReceiver();
-
-        startServiceForMailCheck();
-
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+        makeBroadcastReceiver();
+        startServiceForMailCheck();
+        getResultsFromApi();
     }
 
     public void handleFragments(Boolean add, GmailMessage inGmailMessage) {
+
+        System.out.println("handleFragmentsCalled--------------------------------");
+
         // https://developer.android.com/training/basics/fragments/fragment-ui.html
         // Check that the activity is using the layout version with
         // the fragment_container FrameLayout
@@ -166,6 +122,8 @@ public class MainActivity extends FragmentActivity
 
             // Create a new Fragment to be placed in the activity layout
             AlertListFragment newFragment = new AlertListFragment();
+            //Set the Gmail message that contains the information for the fragment
+            newFragment.setGmailMessage(inGmailMessage);
 
             // In case this activity was started with special instructions from an
             // Intent, pass the Intent's extras to the fragment as arguments
@@ -174,7 +132,6 @@ public class MainActivity extends FragmentActivity
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, newFragment).commit();
-
         }
     }
 
@@ -322,14 +279,25 @@ public class MainActivity extends FragmentActivity
 
             if(messageMap != null){
 
+                System.out.println("entrySet:");
+                System.out.println(messageMap.entrySet());
+
+                int count = 0;
+
                 for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()){
+                    count++;
+                    Log.d(ClassName, "BroadcastReceiver.MessageSubject "+count);
                     GmailMessage curGmailMessage = entry.getValue();
+                    Log.d(ClassName, "BroadcastReceiver.MessageSubject "+curGmailMessage.getMessageSubject());
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject");
                     handleFragments(true, curGmailMessage);
                 }
                 Log.d(ClassName, "BroadcastReceiver.receivedMessages");
                 //Play audio in different thread
                 //playAudio();
+            }
+            else{
+                Log.d(ClassName, "BroadcastReceiver.messageMap == null");
             }
 
             //handleFragments(true, null);

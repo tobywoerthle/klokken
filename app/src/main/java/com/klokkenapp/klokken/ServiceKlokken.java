@@ -2,6 +2,7 @@ package com.klokkenapp.klokken;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -12,6 +13,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.klokkenapp.klokken.GmailMessageProcessor.*;
 
 public class ServiceKlokken extends IntentService {
 
@@ -29,14 +32,22 @@ public class ServiceKlokken extends IntentService {
         GmailAuthTransfer authTransfer = (GmailAuthTransfer) intent.getSerializableExtra("authTransfer");
         GoogleAccountCredential accountCredential = authTransfer.getCredential();
 
-        gmailMessageProcessor = new GmailMessageProcessor(accountCredential);
+        System.out.println(accountCredential);
+
+        gmailMessageProcessor = new GmailMessageProcessor(accountCredential, this);
         gmailMessageProcessor.startMakeRequestTask();
+    }
+
+    public void gmailMessagesPostAsyncTask(){
         Map<String, GmailMessage> messages = gmailMessageProcessor.getMessages();
+
+        System.out.println("ASYNC ENTRY SET");
+        System.out.println(messages.entrySet());
 
         //ThreadID
         //System.out.println(android.os.Process.getThreadPriority(android.os.Process.myTid()));
 
-        Toast.makeText(this, "Handle Intent", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Handle Intent", Toast.LENGTH_SHORT).show();
         //HashMap<String, GmailMessage> sampleMap = new HashMap<>();
         //sampleMap.put("Aloha","Pineapple");
 
@@ -46,7 +57,7 @@ public class ServiceKlokken extends IntentService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
         return super.onStartCommand(intent,flags,startId);
     }
 
@@ -57,7 +68,7 @@ public class ServiceKlokken extends IntentService {
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show();
     }
 
     private void publishResults(GmailMessagesTransfer gmailMessages){
@@ -69,5 +80,7 @@ public class ServiceKlokken extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
         sendBroadcast(intent);
+
+        Toast.makeText(this, "PUBLISHED"+gmailMessages.getMessageMap().entrySet().toString(), Toast.LENGTH_LONG).show();
     }
 }

@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -39,27 +40,32 @@ public class GmailMessageProcessor extends MainActivity {
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
 
-    public static Map<String, GmailMessage> messagesToTransfer = new HashMap<>();
+    public Map<String, GmailMessage> messagesToTransfer = new HashMap<>();
 
-    public static Map<String, GmailMessage> getMessages() {
+    public Map<String, GmailMessage> getMessages() {
         return messagesToTransfer;
     }
 
+    private static ServiceKlokken serviceKlokken;
+
     private static GoogleAccountCredential accountCredential;
 
-    public GmailMessageProcessor(GoogleAccountCredential inAccountCredential) {
+    public GmailMessageProcessor(GoogleAccountCredential inAccountCredential, ServiceKlokken inServiceKlokken) {
         accountCredential = inAccountCredential;
+        serviceKlokken = inServiceKlokken;
     }
 
-    public void startMakeRequestTask() {
+    public void startMakeRequestTask(){
         new MakeRequestTaskGmail(accountCredential).execute();
+        System.out.println("MakeRequestTaskGmail creation");
     }
 
     /**
      * An asynchronous task that handles the Gmail API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    private class MakeRequestTaskGmail extends AsyncTask<Void, Void, List<String>> {
+    public class MakeRequestTaskGmail extends AsyncTask<Void, Void, List<String>> {
+    //public class MakeRequestTaskGmail {
         private com.google.api.services.gmail.Gmail mService = null;
         private Exception mLastError = null;
 
@@ -76,6 +82,7 @@ public class GmailMessageProcessor extends MainActivity {
          * Background task to call Gmail API.
          * @param params no parameters needed for this task.
          */
+
         @Override
         protected List<String> doInBackground(Void... params) {
             try {
@@ -93,22 +100,24 @@ public class GmailMessageProcessor extends MainActivity {
          * @throws IOException
          */
         private List<String> getDataFromApi() throws IOException {
+
+            System.out.println("getDataFromApi call");
             // Get the labels in the user's account.
             String user = "me";
-            List<String> labels = new ArrayList<String>();
-            List<String> messages = new ArrayList<String>();
+            List<String> messageIds = new ArrayList<String>();
+            /*
             ListLabelsResponse listResponse =
                     mService.users().labels().list(user).execute();
             ListMessagesResponse listResponseMail =
                     mService.users().messages().list(user).execute();
-            for (Label label : listResponse.getLabels()) {
-                labels.add(label.getName());
-            }
+            */
 
             // TODO: Ability to set mailbox
             // ex. in:inbox OR in:Klokken
 
+            System.out.println("getDataFromApi queryMessageReturn call");
             ListMessagesResponse queryMessageReturn = mService.users().messages().list(user).setQ("in:inbox is:unread").execute();
+            System.out.println("getDataFromApi queryMessageReturn call finished");
 
             List<Message> messagesRaw = queryMessageReturn.getMessages();
 
@@ -121,56 +130,87 @@ public class GmailMessageProcessor extends MainActivity {
                     GmailMessage curMessage = printMessages(mService, user, message.getId());
 
                     messagesToTransfer.put(message.getId(),curMessage);
-
-                    //messages.add(message.toPrettyString());
+                    messageIds.add(message.getId());;
                 }
             }
+            else{
+                Log.d(ClassName, "getDataFromApi.messageIter messagesRaw null");
+            }
 
-            return messages;
+            return messageIds;
         }
 
 
+        /**
         @Override
         protected void onPreExecute() {
             //mOutputText.setText("");
             //mProgress.show();
         }
+        */
 
         public GmailMessage printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
                 throws IOException {
+
+            boolean messageDebug = true;
+
             Message message = service.users().messages().get(userId, messageId).execute();
 
             Log.d(ClassName, "printMessages.message");
 
             List<MessagePartHeader> headers = message.getPayload().getHeaders();
 
-            //System.out.println("Message snippet: " + message.getSnippet());
+            System.out.println("Message snippet: " + message.getSnippet());
 
             GmailMessage gmailMessage = new GmailMessage();
 
             for (MessagePartHeader header: headers) {
                 if(header.getName().equals("From")){
-                    //System.out.println("Message From: " + header.getValue());
+                    if(messageDebug){
+                        System.out.println("Message From: " + header.getValue());
+                    }
                     gmailMessage.setMessageFrom(header.getValue());
                 }
                 else if(header.getName().equals("To")){
-                    //System.out.println("Message To: " + header.getValue());
+                    if(messageDebug){
+                        System.out.println("Message To: " + header.getValue());
+                    }
                     gmailMessage.setMessageTo(header.getValue());
                 }
                 else if(header.getName().equals("Date")){
-                    //System.out.println("Message Date: " + header.getValue());
+
+                    if(messageDebug){
+                        System.out.println("Message Date: " + header.getValue());
+                    }
                     gmailMessage.setMessageDate(header.getValue());
                 }
                 else if(header.getName().equals("Received")){
-                    //System.out.println("Message Received: " + header.getValue());
-                    gmailMessage.setMessageReceived(header.getValue());
+                    String unparsedReceived = header.getValue();
+                    int indexOfSemicolon = unparsedReceived.indexOf(";");
+                    String formattedDate = unparsedReceived.substring(indexOfSemicolon+1);
+
+                    while(Character.isWhitespace(formattedDate.charAt(0))){
+                        formattedDate = formattedDate.substring(1);
+                    }
+
+                    gmailMessage.setMessageReceived(formattedDate);
+
+                    if(messageDebug){
+                        System.out.println("Message Received (Raw): " + header.getValue());
+                        System.out.println("Message Received (Format): |" + formattedDate + "|") ;
+                    }
+
                 }
                 else if(header.getName().equals("Subject")){
-                    //System.out.println("Message Subject: " + header.getValue());
+                    if(messageDebug){
+                        System.out.println("Message Subject: " + header.getValue());
+                    }
                     gmailMessage.setMessageSubject(header.getValue());
                 }
                 else {
-                    //System.out.println("Other: " + header.getName() + " | " + header.getValue());
+                    if(messageDebug){
+                        System.out.println("Other: " + header.getName() + " | " + header.getValue());
+                    }
                 }
 
                 gmailMessage.setMessageBody(StringUtils.newStringUtf8(Base64.decodeBase64( message.getPayload().getBody().getData())));
@@ -219,6 +259,8 @@ public class GmailMessageProcessor extends MainActivity {
                 output.add(0, "Data retrieved using the Gmail API:");
                 System.out.println(TextUtils.join("\n", output));
             }
+            System.out.println("Finished ASYNC completely");
+            serviceKlokken.gmailMessagesPostAsyncTask();
         }
 
         @Override
