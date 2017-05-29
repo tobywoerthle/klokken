@@ -37,17 +37,13 @@ import com.google.api.services.gmail.model.MessagePartHeader;
 public class GmailMessageProcessor extends MainActivity {
 
     public static final String ClassName = "GmailMessageProcessor";
-
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-
     public Map<String, GmailMessage> messagesToTransfer = new HashMap<>();
-
     public Map<String, GmailMessage> getMessages() {
         return messagesToTransfer;
     }
 
+    private static final String PREF_ACCOUNT_NAME = "accountName";
     private static ServiceKlokken serviceKlokken;
-
     private static GoogleAccountCredential accountCredential;
 
     public GmailMessageProcessor(GoogleAccountCredential inAccountCredential, ServiceKlokken inServiceKlokken) {
@@ -105,12 +101,6 @@ public class GmailMessageProcessor extends MainActivity {
             // Get the labels in the user's account.
             String user = "me";
             List<String> messageIds = new ArrayList<String>();
-            /*
-            ListLabelsResponse listResponse =
-                    mService.users().labels().list(user).execute();
-            ListMessagesResponse listResponseMail =
-                    mService.users().messages().list(user).execute();
-            */
 
             // TODO: Ability to set mailbox
             // ex. in:inbox OR in:Klokken
@@ -141,13 +131,10 @@ public class GmailMessageProcessor extends MainActivity {
         }
 
 
-        /**
         @Override
         protected void onPreExecute() {
-            //mOutputText.setText("");
-            //mProgress.show();
+
         }
-        */
 
         public GmailMessage printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
                 throws IOException {
@@ -215,17 +202,6 @@ public class GmailMessageProcessor extends MainActivity {
 
             }
 
-            //Get full message body
-            //System.out.println("Message Body HTML: " + StringUtils.newStringUtf8(Base64.decodeBase64( message.getPayload().getBody().getData())));
-
-
-            /*
-            try {
-                getMimeMessage(mService, userId, messageId);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-            }
-            */
             return gmailMessage;
         }
 
@@ -240,10 +216,6 @@ public class GmailMessageProcessor extends MainActivity {
             Session session = Session.getDefaultInstance(props, null);
 
             MimeMessage email = new MimeMessage(session, new ByteArrayInputStream(emailBytes));
-
-            //System.out.println("1"+email.getSubject());
-            //System.out.println("2"+email.getFrom());
-            //System.out.println("3"+email.getReceivedDate());
 
             return email;
         }
