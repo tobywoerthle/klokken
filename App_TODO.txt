@@ -3,13 +3,22 @@ TODO
 
 Messaging Ringer Android App
 
--Service + Alarm for email check
+-Service + JobScheduler API for email check
 -Search only today's emails
 -Ringer when email found
 -Dismiss button
 -Search Criteria
 -Slack Integration
 -SMS integration
+-FB Messenger Integration
+-Steam Integration
+-Discord Integration
+
+-Push notifications (Paid)
+https://developers.google.com/gmail/api/guides/push
+
+
+------------------------------------------------------
 
 Useful links
 -Add JAR https://stackoverflow.com/questions/16641643/how-to-add-new-activity-to-existing-project-in-android-studio
@@ -28,3 +37,21 @@ https://developer.android.com/training/scheduling/alarms.html
 https://stackoverflow.com/questions/10420358/android-periodic-background-service-advice
 https://developer.android.com/reference/android/app/Service.html#startForeground(int,%20android.app.Notification)
 http://www.vogella.com/tutorials/AndroidServices/article.html
+http://www.vogella.com/tutorials/AndroidTaskScheduling/article.html
+
+API Setup Google Console
+https://console.developers.google.com/apis/credentials?project=tactile-entry-147219
+
+Material Design Colour
+https://material.io/guidelines/style/color.html#color-color-palette
+
+Intent Service
+https://code.tutsplus.com/tutorials/android-fundamentals-intentservice-basics--mobile-6183
+
+Design Ideas
+https://www.behance.net/gallery/46551053/Activity
+https://www.behance.net/gallery/50008637/ZAD-Charity-complete-ios-app
+https://www.behance.net/gallery/42655147/Design-mobile-app-for-business
+
+Icons
+https://material.io/icons/
