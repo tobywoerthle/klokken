@@ -62,6 +62,8 @@ public class ServiceKlokken extends IntentService {
     }
 
     private void publishResults(GmailMessagesTransfer gmailMessages){
+        Toast.makeText(this, "Mail check complete", Toast.LENGTH_SHORT).show();
+
         Log.d("sender", "Broadcasting message");
         Intent intent = new Intent("custom-event-name");
         intent.putExtra("gmailMessages", gmailMessages);

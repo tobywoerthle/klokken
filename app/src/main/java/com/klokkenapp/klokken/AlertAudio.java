@@ -11,9 +11,11 @@ import android.os.Vibrator;
  * Created by Toby on 5/7/2017.
  */
 
-class AlertAudio {
+class AlertAudio{
 
     private static Context mainActivityContext = null;
+
+    private static Ringtone ringtone = null;
 
     public AlertAudio(Context inMainActivityContext) {
         mainActivityContext = inMainActivityContext;
@@ -42,10 +44,14 @@ class AlertAudio {
     public void ringPhoneAlert() {
         //stop should be called by other method, once alert is acknowledged
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE );
-        Ringtone r = RingtoneManager.getRingtone(mainActivityContext, notification);
+        ringtone = RingtoneManager.getRingtone(mainActivityContext, notification);
 
-        r.play();
-        SystemClock.sleep(9000);
-        r.stop();
+        ringtone.play();
+        //SystemClock.sleep(9000);
+        //r.stop();
+    }
+
+    public void stopRingAudio(){
+        ringtone.stop();
     }
 }
