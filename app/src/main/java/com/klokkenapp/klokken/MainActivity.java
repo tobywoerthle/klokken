@@ -15,6 +15,7 @@ import com.google.api.services.gmail.GmailScopes;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -30,11 +31,13 @@ import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -73,7 +76,7 @@ public class MainActivity extends FragmentActivity
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY};
     private static Bundle savedInstanceState;
-    private static List<String> allDisplayedMessages = new ArrayList<String>();;
+    private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -115,38 +118,28 @@ public class MainActivity extends FragmentActivity
         if (findViewById(R.id.fragment_container) != null || add) {
 
             String curMessageID = inGmailMessage.getMessageID();
-            Boolean messageAlreadyDisplayed = false;
 
-            for(String curID: allDisplayedMessages){
-                if(curID.equals(curMessageID)){
-                    messageAlreadyDisplayed = true;
-                    break;
-                }
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null && !add) {
+                return;
             }
 
-            if(messageAlreadyDisplayed == false){
-                // However, if we're being restored from a previous state,
-                // then we don't need to do anything and should return or else
-                // we could end up with overlapping fragments.
-                if (savedInstanceState != null && !add) {
-                    return;
-                }
+            // Create a new Fragment to be placed in the activity layout
+            AlertListFragment newFragment = new AlertListFragment();
+            //Set the Gmail message that contains the information for the fragment
+            newFragment.setGmailMessage(inGmailMessage);
 
-                // Create a new Fragment to be placed in the activity layout
-                AlertListFragment newFragment = new AlertListFragment();
-                //Set the Gmail message that contains the information for the fragment
-                newFragment.setGmailMessage(inGmailMessage);
+            // In case this activity was started with special instructions from an
+            // Intent, pass the Intent's extras to the fragment as arguments
+            newFragment.setArguments(getIntent().getExtras());
 
-                // In case this activity was started with special instructions from an
-                // Intent, pass the Intent's extras to the fragment as arguments
-                newFragment.setArguments(getIntent().getExtras());
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, newFragment).commit();
 
-                // Add the fragment to the 'fragment_container' FrameLayout
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, newFragment).commit();
-
-                allDisplayedMessages.add(curMessageID);
-            }
+            allDisplayedMessages.put(curMessageID, newFragment);
         }
     }
 
@@ -258,7 +251,6 @@ public class MainActivity extends FragmentActivity
 
     public void buttonManualGmailCheckClick(View v)
     {
-
         getResultsFromApi();
         //setAlarm();
     }
@@ -270,6 +262,8 @@ public class MainActivity extends FragmentActivity
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         //String syncConnPref = sharedPref.getString(SettingsActivity.KEY_PREF_SYNC_CONN, "");
+
+        allDisplayedMessages = new HashMap<String, AlertListFragment>();
     }
 
     public void filterClick(View v)
@@ -299,51 +293,97 @@ public class MainActivity extends FragmentActivity
 
                 int count = 0;
 
+                removeAllFragments();
+
                 for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()){
                     count++;
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject "+count);
                     GmailMessage curGmailMessage = entry.getValue();
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject "+curGmailMessage.getMessageSubject());
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject");
+
                     handleFragments(true, curGmailMessage);
                 }
+
                 Log.d(ClassName, "BroadcastReceiver.receivedMessages");
+
                 //Play audio in different thread
-                //playAudio();
+                playAudio();
+
             }
             else{
                 Log.d(ClassName, "BroadcastReceiver.messageMap == null");
             }
 
-            //handleFragments(true, null);
-            //handleFragments(true, null);
-            //handleFragments(true, null);
-
-            //String pineapple = messageMap.get("Aloha");
-
         }
     };
+
+    private void removeAllFragments() {
+        //TODO: Archive old fragments/messages
+
+        for (HashMap.Entry<String, AlertListFragment> curID : allDisplayedMessages.entrySet()){
+            String id = curID.getKey();
+            AlertListFragment frag = curID.getValue();
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .remove(frag).commit();
+        }
+
+        allDisplayedMessages = new HashMap<String, AlertListFragment>();
+    }
 
     private void playAudio() {
         //TODO: Notification broadcast
         //TODO: Dialog to dismiss/snooze
         //TODO: Add custom ringtone
 
-        Context context = getApplicationContext();
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
 
-        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        AlertAudio alertAudio = new AlertAudio(context);
+                Context context = getApplicationContext();
+                AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                AlertAudio alertAudio = new AlertAudio(context);
 
-        switch(audio.getRingerMode() ){
-            case AudioManager.RINGER_MODE_NORMAL:
-                alertAudio.ringPhoneAlert();
-                break;
-            case AudioManager.RINGER_MODE_VIBRATE:
-                alertAudio.vibratePhoneAlert();
-                break;
-            case AudioManager.RINGER_MODE_SILENT:
-                break;
+                switch(audio.getRingerMode() ){
+                    case AudioManager.RINGER_MODE_NORMAL:
+                        alertAudio.ringPhoneAlert();
+                        showAlert(alertAudio);
+                        break;
+                    case AudioManager.RINGER_MODE_VIBRATE:
+                        alertAudio.vibratePhoneAlert();
+                        showAlert();
+                        break;
+                    case AudioManager.RINGER_MODE_SILENT:
+                        showAlert();
+                        break;
+                }
+            }
+        });
+    }
+
+    private void showAlert(final AlertAudio alertAudio){
+        //Ringtone showAlert()
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio);
+                newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
+            }
         }
+        );
+    }
+
+    private void showAlert(){
+        //Vibrate or Silent showAlert()
+        AsyncTask.execute(new Runnable() {
+                              @Override
+                              public void run() {
+                                  AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog();
+                                  newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
+                              }
+                          }
+        );
     }
 
     @Override

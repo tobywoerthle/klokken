@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class GmailMessage implements Serializable {
 
-    private String messageID;
-    private String messageFrom;
-    private String messageTo;
-    private String messageDate;
-    private String messageReceived;
-    private String messageSubject;
-    private String messageBody;
+    private String messageID = "";
+    private String messageFrom = "";
+    private String messageTo = "";
+    private String messageDate = "";
+    private String messageReceived = "";
+    private String messageSubject = "";
+    private String messageBody = "";
 
     public String getMessageID() {
         return messageID;
