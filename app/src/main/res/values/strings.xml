@@ -18,7 +18,7 @@
 
     <string name="AlertAcknowledgeAlertsMessage">Acknowledge Alerts?</string>
     <string name="AlertPositive">ACKNOWLEDGE</string>
-    <string name="AlertNegative">REMIND IN 5 MIN</string>
+    <string name="AlertNegative">IGNORE</string>
 
     <string-array name="pref_check_frequency_titles">
         <item>1 minute</item>

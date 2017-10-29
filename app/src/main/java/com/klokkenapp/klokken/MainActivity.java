@@ -8,6 +8,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
 import com.google.api.services.gmail.GmailScopes;
@@ -44,6 +45,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -179,6 +181,15 @@ public class MainActivity extends FragmentActivity
         client.disconnect();
     }
 
+    /*
+    public void cancelledUserRecoverableAuthIOException(UserRecoverableAuthIOException inMLastError) {
+        startActivityForResult(
+                inMLastError.getIntent(),
+                MainActivity.REQUEST_AUTHORIZATION);
+        System.out.println("The following error occurred: UserRecoverableAuthIOException");
+    }
+    */
+
     public class BootReceiverForTimer extends BroadcastReceiver {
 
         @Override
@@ -207,9 +218,14 @@ public class MainActivity extends FragmentActivity
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + 3000,
                 3000, alarmIntent);
+
+        Toast.makeText(this, "Alarm set!", Toast.LENGTH_SHORT).show();
+
         System.out.println("Alarm set!");
 
         cancelAlarm();
+
+        Toast.makeText(this, "Alarm cancelled!", Toast.LENGTH_SHORT).show();
         System.out.println("Alarm cancelled");
     }
 
@@ -397,7 +413,10 @@ public class MainActivity extends FragmentActivity
     private void startServiceForMailCheck() {
         mainIntentForService = new Intent(this, ServiceKlokken.class);
         GmailAuthTransfer authTransfer = new GmailAuthTransfer(mCredential);
+        MainActivityTransfer mainActivityTransfer = new MainActivityTransfer(this);
+        //Transfer to ensure main activity is used for OAUTH 2.0 (UserRecoverableAuthIOException)
         mainIntentForService.putExtra("authTransfer", authTransfer);
+        mainIntentForService.putExtra("mainActivityTransfer", mainActivityTransfer);
         startService(mainIntentForService);
         //PendingIntent pendingIntendt = new PendingIntent();
         ServiceConnection serviceConnection = new ServiceConnection() {

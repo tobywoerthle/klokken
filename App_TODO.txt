@@ -1,6 +1,16 @@
 TODO
 ------
 
+Tasks:
+
+1. Auto check
+2. Mark as read option
+3. Settings
+4. Overlay
+5. Filters
+
+------
+
 Messaging Ringer Android App
 
 -Service + JobScheduler API for email check
@@ -16,7 +26,6 @@ Messaging Ringer Android App
 
 -Push notifications (Paid)
 https://developers.google.com/gmail/api/guides/push
-
 
 ------------------------------------------------------
 

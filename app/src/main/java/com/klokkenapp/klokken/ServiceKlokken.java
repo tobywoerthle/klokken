@@ -33,7 +33,11 @@ public class ServiceKlokken extends IntentService {
         GmailAuthTransfer authTransfer = (GmailAuthTransfer) intent.getSerializableExtra("authTransfer");
         GoogleAccountCredential accountCredential = authTransfer.getCredential();
 
-        gmailMessageProcessor = new GmailMessageProcessor(accountCredential, this);
+        MainActivityTransfer mainActivityTransfer = (MainActivityTransfer) intent.getSerializableExtra("mainActivityTransfer");
+        MainActivity mainActivity = mainActivityTransfer.getMainActivity();
+
+
+        gmailMessageProcessor = new GmailMessageProcessor(accountCredential, this, mainActivity);
         gmailMessageProcessor.startMakeRequestTask();
     }
 

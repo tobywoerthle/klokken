@@ -45,10 +45,12 @@ public class GmailMessageProcessor extends MainActivity {
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static ServiceKlokken serviceKlokken;
     private static GoogleAccountCredential accountCredential;
+    private static MainActivity mainActivity;
 
-    public GmailMessageProcessor(GoogleAccountCredential inAccountCredential, ServiceKlokken inServiceKlokken) {
+    public GmailMessageProcessor(GoogleAccountCredential inAccountCredential, ServiceKlokken inServiceKlokken, MainActivity inMainActivity) {
         accountCredential = inAccountCredential;
         serviceKlokken = inServiceKlokken;
+        mainActivity = inMainActivity;
     }
 
     public void startMakeRequestTask(){
@@ -63,7 +65,7 @@ public class GmailMessageProcessor extends MainActivity {
     public class MakeRequestTaskGmail extends AsyncTask<Void, Void, List<String>> {
     //public class MakeRequestTaskGmail {
         private com.google.api.services.gmail.Gmail mService = null;
-        private Exception mLastError = null;
+        public Exception mLastError = null;
 
         public MakeRequestTaskGmail(GoogleAccountCredential credential) {
             HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -237,14 +239,15 @@ public class GmailMessageProcessor extends MainActivity {
         protected void onCancelled() {
             if (mLastError != null) {
                 if (mLastError instanceof GooglePlayServicesAvailabilityIOException) {
-                    //showGooglePlayServicesAvailabilityErrorDialog(
-                    //        ((GooglePlayServicesAvailabilityIOException) mLastError)
-                          //          .getConnectionStatusCode());
+                    mainActivity.showGooglePlayServicesAvailabilityErrorDialog(
+                            ((GooglePlayServicesAvailabilityIOException) mLastError)
+                                    .getConnectionStatusCode());
                     System.out.println("The following error occurred: GooglePlayServicesAvailabilityIOException");
                 } else if (mLastError instanceof UserRecoverableAuthIOException) {
-                    //startActivityForResult(
-                      //      ((UserRecoverableAuthIOException) mLastError).getIntent(),
-                        //    REQUEST_AUTHORIZATION);
+                    //MainActivity.cancelledUserRecoverableAuthIOException((UserRecoverableAuthIOException) mLastError);
+                    mainActivity.startActivityForResult(
+                            ((UserRecoverableAuthIOException) mLastError).getIntent(),
+                            MainActivity.REQUEST_AUTHORIZATION);
                     System.out.println("The following error occurred: UserRecoverableAuthIOException");
                 } else {
                     System.out.println("The following error occurred:\n"
