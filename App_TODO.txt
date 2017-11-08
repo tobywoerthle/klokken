@@ -64,3 +64,6 @@ https://www.behance.net/gallery/42655147/Design-mobile-app-for-business
 
 Icons
 https://material.io/icons/
+
+Orientation Change
+https://developer.android.com/guide/topics/resources/runtime-changes.html

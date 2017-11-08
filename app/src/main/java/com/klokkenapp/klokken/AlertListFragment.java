@@ -25,16 +25,19 @@ public class AlertListFragment extends MainActivityFragments {
         super.onActivityCreated(savedInstanceState);
         mainView = getView();
 
-        TextView alertListTimeValueText = (TextView) mainView.findViewById(R.id.alertListTimeValue);
-        TextView alertListTimeFromText = (TextView) mainView.findViewById(R.id.alertListFromValue);
-        TextView alertListTimeSubjectText = (TextView) mainView.findViewById(R.id.alertListSubjectValue);
+        if(gmailMessage != null){
+            TextView alertListTimeValueText = (TextView) mainView.findViewById(R.id.alertListTimeValue);
+            TextView alertListTimeFromText = (TextView) mainView.findViewById(R.id.alertListFromValue);
+            TextView alertListTimeSubjectText = (TextView) mainView.findViewById(R.id.alertListSubjectValue);
 
-        alertListTimeValueText.setText(gmailMessage.getMessageReceived());
-        alertListTimeFromText.setText(gmailMessage.getMessageFrom());
-        alertListTimeSubjectText.setText(gmailMessage.getMessageSubject());
+            alertListTimeValueText.setText(gmailMessage.getMessageReceived());
+            alertListTimeFromText.setText(gmailMessage.getMessageFrom());
+            alertListTimeSubjectText.setText(gmailMessage.getMessageSubject());
+        }
     }
 
     public void setGmailMessage(GmailMessage inGmailMessage){
+
         gmailMessage = inGmailMessage;
     }
 

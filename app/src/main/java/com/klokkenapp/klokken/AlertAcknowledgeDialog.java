@@ -19,6 +19,8 @@ public class AlertAcknowledgeDialog extends DialogFragment {
     public AlertAcknowledgeDialog(AlertAudio inAlertAudio) {
         alertAudio = inAlertAudio;
     }
+    //TO DO: fix Constructor to not use arguments
+
 
     //Vibrate or Silent constructor
     public AlertAcknowledgeDialog() {
@@ -33,6 +35,7 @@ public class AlertAcknowledgeDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         if(alertAudio != null){
                             alertAudio.stopRingAudio();
+                            //// TODO: Do not alert again for this message
                         }
                     }
                 })

@@ -8,7 +8,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.util.ExponentialBackOff;
 
 import com.google.api.services.gmail.GmailScopes;
@@ -16,7 +15,6 @@ import com.google.api.services.gmail.GmailScopes;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -38,7 +36,6 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -47,15 +44,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
-
-import java.util.Map;
 
 public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
@@ -321,10 +315,14 @@ public class MainActivity extends FragmentActivity
                     handleFragments(true, curGmailMessage);
                 }
 
+                if (count != 0){
+                    //Play audio and display alert in different thread
+                    alertInit();
+                }
+
                 Log.d(ClassName, "BroadcastReceiver.receivedMessages");
 
-                //Play audio in different thread
-                playAudio();
+
 
             }
             else{
@@ -348,7 +346,7 @@ public class MainActivity extends FragmentActivity
         allDisplayedMessages = new HashMap<String, AlertListFragment>();
     }
 
-    private void playAudio() {
+    private void alertInit() {
         //TODO: Notification broadcast
         //TODO: Dialog to dismiss/snooze
         //TODO: Add custom ringtone

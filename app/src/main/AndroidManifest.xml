@@ -30,7 +30,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="Klokken">
+            android:label="Klokken"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
