@@ -120,6 +120,8 @@ public class GmailMessageProcessor extends MainActivity {
                     Log.d(ClassName, "getDataFromApi.messageIter");
 
                     GmailMessage curMessage = printMessages(mService, user, message.getId());
+                    String curThreadID = message.getThreadId();
+                    curMessage.setThreadID(curThreadID);
 
                     messagesToTransfer.put(message.getId(),curMessage);
                     messageIds.add(message.getId());;

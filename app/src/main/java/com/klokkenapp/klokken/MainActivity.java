@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity
 
     private static final String BUTTON_TEXT = "Call Gmail API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_READONLY};
+    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS};
     private static Bundle savedInstanceState;
     private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
 
@@ -317,7 +317,7 @@ public class MainActivity extends FragmentActivity
 
                 if (count != 0){
                     //Play audio and display alert in different thread
-                    alertInit();
+                    alertInit(messageMap);
                 }
 
                 Log.d(ClassName, "BroadcastReceiver.receivedMessages");
@@ -346,7 +346,7 @@ public class MainActivity extends FragmentActivity
         allDisplayedMessages = new HashMap<String, AlertListFragment>();
     }
 
-    private void alertInit() {
+    private void alertInit(final HashMap<String, GmailMessage> messageMap) {
         //TODO: Notification broadcast
         //TODO: Dialog to dismiss/snooze
         //TODO: Add custom ringtone
@@ -362,38 +362,38 @@ public class MainActivity extends FragmentActivity
                 switch(audio.getRingerMode() ){
                     case AudioManager.RINGER_MODE_NORMAL:
                         alertAudio.ringPhoneAlert();
-                        showAlert(alertAudio);
+                        showAlert(alertAudio, messageMap);
                         break;
                     case AudioManager.RINGER_MODE_VIBRATE:
                         alertAudio.vibratePhoneAlert();
-                        showAlert();
+                        showAlert(messageMap);
                         break;
                     case AudioManager.RINGER_MODE_SILENT:
-                        showAlert();
+                        showAlert(messageMap);
                         break;
                 }
             }
         });
     }
 
-    private void showAlert(final AlertAudio alertAudio){
+    private void showAlert(final AlertAudio alertAudio, final HashMap<String, GmailMessage> messageMap){
         //Ringtone showAlert()
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio);
+                AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, messageMap);
                 newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
             }
         }
         );
     }
 
-    private void showAlert(){
+    private void showAlert(final HashMap<String, GmailMessage> messageMap){
         //Vibrate or Silent showAlert()
         AsyncTask.execute(new Runnable() {
                               @Override
                               public void run() {
-                                  AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog();
+                                  AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(mCredential, messageMap);
                                   newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
                               }
                           }

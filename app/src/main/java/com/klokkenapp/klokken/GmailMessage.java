@@ -12,6 +12,7 @@ public class GmailMessage implements Serializable {
     private String messageReceived = "";
     private String messageSubject = "";
     private String messageBody = "";
+    private String threadID = "";
 
     public String getMessageID() {
         return messageID;
@@ -68,4 +69,8 @@ public class GmailMessage implements Serializable {
     public void setMessageBody(String messageBody) {
         this.messageBody = messageBody;
     }
+
+    public String getThreadID() { return threadID; }
+
+    public void setThreadID(String threadID) { this.threadID = threadID; }
 }

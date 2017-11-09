@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.SystemClock;
 import android.os.Vibrator;
 
+import java.util.HashMap;
+
 /**
  * Created by Toby on 5/7/2017.
  */
