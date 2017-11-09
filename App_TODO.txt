@@ -1,6 +1,14 @@
 TODO
 ------
 
+Minimum Viable Product:
+
+1. Auto check in background
+2. Acknowledge
+3. Overlay/notification
+
+------
+
 Tasks:
 
 1. Auto check
