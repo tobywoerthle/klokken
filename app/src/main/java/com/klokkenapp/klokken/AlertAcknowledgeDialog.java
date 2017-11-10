@@ -10,8 +10,6 @@ import android.util.Log;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 
-import java.util.HashMap;
-
 /**
  * Created by Toby on 7/13/2017.
  */
@@ -22,43 +20,37 @@ public class AlertAcknowledgeDialog extends DialogFragment {
 
     private static AlertAudio alertAudio = null;
     private static GoogleAccountCredential mCredential = null;
-    private static HashMap<String, GmailMessage> messageMap = null;
+    private String curGmailMessageThreadID = null;
+    private String curGmailMessageSubject = null;
 
     //Ringtone constructor
-    public AlertAcknowledgeDialog(AlertAudio inAlertAudio, GoogleAccountCredential inMCredential, HashMap<String, GmailMessage> inMessageMap) {
+    public AlertAcknowledgeDialog(AlertAudio inAlertAudio, GoogleAccountCredential inMCredential, String inCurGmailMessageThreadID, String inCurGmailMessageSubject) {
         alertAudio = inAlertAudio;
         mCredential = inMCredential;
-        messageMap = inMessageMap;
+        curGmailMessageThreadID = inCurGmailMessageThreadID;
+        curGmailMessageSubject = inCurGmailMessageSubject;
     }
 
-
-
     //Vibrate or Silent constructor
-    public AlertAcknowledgeDialog(GoogleAccountCredential inMCredential, HashMap<String, GmailMessage> inMessageMap) {
+    public AlertAcknowledgeDialog(GoogleAccountCredential inMCredential, String inCurGmailMessageThreadID, String inCurGmailMessageSubject) {
         mCredential = inMCredential;
-        messageMap = inMessageMap;
+        curGmailMessageThreadID = inCurGmailMessageThreadID;
+        curGmailMessageSubject = inCurGmailMessageSubject;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.AlertAcknowledgeAlertsMessage)
+        builder.setMessage(getResources().getString(R.string.AlertAcknowledgeAlertsMessage) + ": " + curGmailMessageSubject)
                 .setPositiveButton(R.string.AlertPositive, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if(alertAudio != null){
                             alertAudio.stopRingAudio();
                         }
 
-                        //TO DO: Acknowledge Multiple Messages/Threads
-                        String curGmailMessageThreadID = null;
-                        for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()) {
-                            curGmailMessageThreadID = entry.getValue().getThreadID();
-                        }
-
                         new MessageLabelModifier(mCredential, curGmailMessageThreadID).execute();
-                        Log.d("AlertAcknowledgeDialog", "post-execute_+++");
-
                         //TODO: Do not alert again for this message
                     }
                 })
@@ -70,7 +62,15 @@ public class AlertAcknowledgeDialog extends DialogFragment {
                         }
                     }
                 });
-        // Create the AlertDialog object and return it
+
         return builder.create();
+    }
+
+    @Override
+    //If outside of dialog is pressed, cancel audio if it exists
+    public void onCancel(DialogInterface dialog) {
+        if(alertAudio != null){
+            alertAudio.stopRingAudio();
+        }
     }
 }

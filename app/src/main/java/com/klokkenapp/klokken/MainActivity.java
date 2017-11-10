@@ -366,38 +366,30 @@ public class MainActivity extends FragmentActivity
                         break;
                     case AudioManager.RINGER_MODE_VIBRATE:
                         alertAudio.vibratePhoneAlert();
-                        showAlert(messageMap);
+                        showAlert(null, messageMap);
                         break;
                     case AudioManager.RINGER_MODE_SILENT:
-                        showAlert(messageMap);
+                        showAlert(null, messageMap);
                         break;
                 }
             }
         });
     }
 
-    private void showAlert(final AlertAudio alertAudio, final HashMap<String, GmailMessage> messageMap){
-        //Ringtone showAlert()
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, messageMap);
-                newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
-            }
-        }
-        );
-    }
+    //Need to be Gloabl because used in an inner class (AlertAcknowledgeDialog)
+    private String curGmailMessageThreadID;
+    private String curGmailMessageSubject;
 
-    private void showAlert(final HashMap<String, GmailMessage> messageMap){
-        //Vibrate or Silent showAlert()
-        AsyncTask.execute(new Runnable() {
-                              @Override
-                              public void run() {
-                                  AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(mCredential, messageMap);
-                                  newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
-                              }
-                          }
-        );
+    private void showAlert(final AlertAudio alertAudio, final HashMap<String, GmailMessage> messageMap){
+
+        for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()) {
+            curGmailMessageThreadID = entry.getValue().getThreadID();
+            curGmailMessageSubject = entry.getValue().getMessageSubject();
+
+            AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, curGmailMessageThreadID, curGmailMessageSubject);
+            newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
+
+        }
     }
 
     @Override

@@ -16,7 +16,7 @@
     <string name="pref_title_gmail_monitor_today">Only monitor today\'s emails</string>
     <string name="pref_title_check_frequency">Check frequency (minutes)</string>
 
-    <string name="AlertAcknowledgeAlertsMessage">Acknowledge Alerts?</string>
+    <string name="AlertAcknowledgeAlertsMessage">Acknowledge Alert?</string>
     <string name="AlertPositive">ACKNOWLEDGE</string>
     <string name="AlertNegative">IGNORE</string>
 
