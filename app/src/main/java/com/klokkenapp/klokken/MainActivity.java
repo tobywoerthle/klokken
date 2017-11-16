@@ -347,7 +347,7 @@ public class MainActivity extends FragmentActivity
     }
 
     private void alertInit(final HashMap<String, GmailMessage> messageMap) {
-        //TODO: Notification broadcast
+        //TODO: GmailNotification broadcast
         //TODO: Dialog to dismiss/snooze
         //TODO: Add custom ringtone
 
@@ -379,6 +379,7 @@ public class MainActivity extends FragmentActivity
     //Need to be Gloabl because used in an inner class (AlertAcknowledgeDialog)
     private String curGmailMessageThreadID;
     private String curGmailMessageSubject;
+    private String curGmailMessageFrom;
 
     private void showAlert(final AlertAudio alertAudio, final HashMap<String, GmailMessage> messageMap){
 
@@ -386,10 +387,18 @@ public class MainActivity extends FragmentActivity
             curGmailMessageThreadID = entry.getValue().getThreadID();
             curGmailMessageSubject = entry.getValue().getMessageSubject();
 
+            createNotification(messageMap);
+
             AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, curGmailMessageThreadID, curGmailMessageSubject);
             newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
-
         }
+    }
+
+    private void createNotification(final HashMap<String, GmailMessage> inMessageMap) {
+
+        GmailNotification gmailNotification = new GmailNotification(this, inMessageMap);
+        gmailNotification.createNotification();
+
     }
 
     @Override

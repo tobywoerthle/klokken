@@ -5,7 +5,7 @@ Minimum Viable Product:
 
 1. Auto check in background
 2. Acknowledge
-3. Overlay/notification
+3. Overlay/gmailNotification
 
 ------
 
@@ -75,3 +75,8 @@ https://material.io/icons/
 
 Orientation Change
 https://developer.android.com/guide/topics/resources/runtime-changes.html
+
+Notifications
+https://developer.android.com/guide/topics/ui/notifiers/notifications.html
+https://developer.android.com/training/notify-user/build-notification.html
+https://developer.android.com/training/notify-user/navigation.html
