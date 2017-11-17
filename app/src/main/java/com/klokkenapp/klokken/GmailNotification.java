@@ -1,6 +1,8 @@
 package com.klokkenapp.klokken;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -13,6 +15,16 @@ public class GmailNotification {
     private NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
 
     public void createNotification(){
+
+        Intent resultIntent = new Intent(mainActivityContext, MainActivity.class);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        mainActivityContext,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
 
         inboxStyle.setBigContentTitle("New Klokken Alerts:");
 
@@ -33,21 +45,22 @@ public class GmailNotification {
                             .setGroupSummary(true)
                             .setStyle(inboxStyle);
 
+            mBuilder.setContentIntent(resultPendingIntent);
             // Gets an instance of the NotificationManager service
             NotificationManager mNotifyMgr = (NotificationManager) mainActivityContext.getSystemService(mainActivityContext.NOTIFICATION_SERVICE);
             // Builds the notification and issues it.
             mNotifyMgr.notify(1, mBuilder.build());
         }
-        else{
+        else {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(mainActivityContext)
                             .setSmallIcon(R.drawable.klokken)
                             .setContentTitle("New Klokken Alerts:")
                             .setContentText(messageSubject + " - " + parseFrom(messageFrom));
+            mBuilder.setContentIntent(resultPendingIntent);
             NotificationManager mNotifyMgr = (NotificationManager) mainActivityContext.getSystemService(mainActivityContext.NOTIFICATION_SERVICE);
             mNotifyMgr.notify(1, mBuilder.build());
         }
-
     }
 
     private void setLinesNotification(String messageSubject, String messageFrom ) {
