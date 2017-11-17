@@ -24,7 +24,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/klokken"
+        android:icon="@mipmap/ic_launcher"
         android:label="Klokken Message Checker and Ringer"
         android:theme="@style/AppTheme">
 

@@ -40,7 +40,7 @@ public class GmailNotification {
         if(messageMap.size() > 1){
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(mainActivityContext)
-                            .setSmallIcon(R.drawable.klokken)
+                            .setSmallIcon(R.drawable.ic_launcher)
                             .setGroup("GmailNotification")
                             .setGroupSummary(true)
                             .setStyle(inboxStyle);
@@ -54,7 +54,7 @@ public class GmailNotification {
         else {
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(mainActivityContext)
-                            .setSmallIcon(R.drawable.klokken)
+                            .setSmallIcon(R.drawable.ic_launcher)
                             .setContentTitle("New Klokken Alerts:")
                             .setContentText(messageSubject + " - " + parseFrom(messageFrom));
             mBuilder.setContentIntent(resultPendingIntent);
