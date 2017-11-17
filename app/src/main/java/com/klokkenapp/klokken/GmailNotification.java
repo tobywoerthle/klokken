@@ -2,6 +2,8 @@ package com.klokkenapp.klokken;
 
 import android.app.NotificationManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+
 import java.util.HashMap;
 
 public class GmailNotification {
@@ -14,24 +16,38 @@ public class GmailNotification {
 
         inboxStyle.setBigContentTitle("New Klokken Alerts:");
 
+        String messageSubject = "";
+        String messageFrom = "";
+
         for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()) {
-            String messageSubject = entry.getValue().getMessageSubject();
-            String messageFrom = entry.getValue().getMessageFrom();
-            setLinesNotification(messageSubject, messageFrom);
+            messageSubject = entry.getValue().getMessageSubject();
+            messageFrom = entry.getValue().getMessageFrom();
+            inboxStyle.addLine(messageSubject + " - " + parseFrom(messageFrom));
         }
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mainActivityContext)
-                        .setSmallIcon(R.drawable.klokken)
-                        .setGroup("GmailNotification")
-                        .setGroupSummary(true)
-                        .setStyle(inboxStyle)
-                ;
+        if(messageMap.size() > 1){
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(mainActivityContext)
+                            .setSmallIcon(R.drawable.klokken)
+                            .setGroup("GmailNotification")
+                            .setGroupSummary(true)
+                            .setStyle(inboxStyle);
 
-        // Gets an instance of the NotificationManager service
-        NotificationManager mNotifyMgr = (NotificationManager) mainActivityContext.getSystemService(mainActivityContext.NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        mNotifyMgr.notify(1, mBuilder.build());
+            // Gets an instance of the NotificationManager service
+            NotificationManager mNotifyMgr = (NotificationManager) mainActivityContext.getSystemService(mainActivityContext.NOTIFICATION_SERVICE);
+            // Builds the notification and issues it.
+            mNotifyMgr.notify(1, mBuilder.build());
+        }
+        else{
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(mainActivityContext)
+                            .setSmallIcon(R.drawable.klokken)
+                            .setContentTitle("New Klokken Alerts:")
+                            .setContentText(messageSubject + " - " + parseFrom(messageFrom));
+            NotificationManager mNotifyMgr = (NotificationManager) mainActivityContext.getSystemService(mainActivityContext.NOTIFICATION_SERVICE);
+            mNotifyMgr.notify(1, mBuilder.build());
+        }
+
     }
 
     private void setLinesNotification(String messageSubject, String messageFrom ) {
@@ -45,11 +61,12 @@ public class GmailNotification {
 
     private String parseFrom(String inMessageFrom) {
         int index = inMessageFrom.indexOf("<");
-        if(index != 0 && inMessageFrom.length() != 0) {
+        Log.d("GmailNotification", Integer.toString(index));
+        if(index != -1 && inMessageFrom.length() != 0) {
             return inMessageFrom.substring(0, index-1);
         }
         else{
-            return "";
+            return inMessageFrom;
         }
     }
 }

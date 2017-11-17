@@ -379,15 +379,14 @@ public class MainActivity extends FragmentActivity
     //Need to be Gloabl because used in an inner class (AlertAcknowledgeDialog)
     private String curGmailMessageThreadID;
     private String curGmailMessageSubject;
-    private String curGmailMessageFrom;
 
     private void showAlert(final AlertAudio alertAudio, final HashMap<String, GmailMessage> messageMap){
+
+        createNotification(messageMap);
 
         for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()) {
             curGmailMessageThreadID = entry.getValue().getThreadID();
             curGmailMessageSubject = entry.getValue().getMessageSubject();
-
-            createNotification(messageMap);
 
             AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, curGmailMessageThreadID, curGmailMessageSubject);
             newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
