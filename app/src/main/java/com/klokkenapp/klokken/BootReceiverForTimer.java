@@ -6,15 +6,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by Toby on 5/28/2017.
  */
 
-public class BootReceiverForTimer extends BroadcastReceiver {
+public final class BootReceiverForTimer extends BroadcastReceiver {
 
-    private AlarmManager alarmMgr;
-    private PendingIntent alarmIntent;
+    private static AlarmManager alarmMgr;
+    private static PendingIntent alarmIntent;
     private static final int AlarmWakeUp = 1;
 
     @Override
@@ -22,11 +24,17 @@ public class BootReceiverForTimer extends BroadcastReceiver {
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             setAlarm(context);
         }
+        else if (intent.getAction().equals("SetAlarm")) {
+            Log.d("BootReceiverForTimer", "SetAlarmIntentReceived");
+            if(alarmMgr == null){
+                setAlarm(context);
+            }
+        }
     }
 
     //TODO: Figure out alarm
 
-    public void setAlarm(Context context) {
+    public static void setAlarm(Context context) {
 
         alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, ServiceKlokken.class);
@@ -36,10 +44,13 @@ public class BootReceiverForTimer extends BroadcastReceiver {
                 SystemClock.elapsedRealtime() + 3000,
                 3000, alarmIntent);
 
-        cancelAlarm();
+        Toast.makeText(context, "Alarm set!", Toast.LENGTH_LONG).show();
+        Log.d("BootReceiverForTimer", "Alarm set!");
+
+        //cancelAlarm();
     }
 
-    private void cancelAlarm() {
+    private static void cancelAlarm() {
         // If the alarm has been set, cancel it.
         if (alarmMgr != null) {
             alarmMgr.cancel(alarmIntent);

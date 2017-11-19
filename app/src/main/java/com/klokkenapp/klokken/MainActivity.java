@@ -100,6 +100,8 @@ public class MainActivity extends FragmentActivity
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
+        //setAlarm();
+        enableBootReceiver();
         makeBroadcastReceiver();
         getResultsFromApi();
     }
@@ -184,6 +186,7 @@ public class MainActivity extends FragmentActivity
     }
     */
 
+    /*
     public class BootReceiverForTimer extends BroadcastReceiver {
 
         @Override
@@ -193,6 +196,7 @@ public class MainActivity extends FragmentActivity
             }
         }
     }
+    */
 
 
     private AlarmManager alarmMgr;
@@ -213,14 +217,12 @@ public class MainActivity extends FragmentActivity
                 SystemClock.elapsedRealtime() + 3000,
                 3000, alarmIntent);
 
-        Toast.makeText(this, "Alarm set!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Alarm set!", Toast.LENGTH_LONG).show();
+        Log.d(ClassName, "Alarm set!");
 
-        System.out.println("Alarm set!");
-
-        cancelAlarm();
-
-        Toast.makeText(this, "Alarm cancelled!", Toast.LENGTH_SHORT).show();
-        System.out.println("Alarm cancelled");
+        //cancelAlarm();
+        //Toast.makeText(this, "Alarm cancelled!", Toast.LENGTH_LONG).show();
+        //Log.d(ClassName, "Alarm cancelled!");
     }
 
     private void cancelAlarm() {
@@ -241,6 +243,9 @@ public class MainActivity extends FragmentActivity
 
         PackageManager pm = context.getPackageManager();
         pm.setComponentEnabledSetting(receiverForTimer, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+
+        Intent intent = new Intent("SetAlarm");
+        sendBroadcast(intent);
     }
 
     private void disableBootReceiver() {
@@ -250,6 +255,7 @@ public class MainActivity extends FragmentActivity
         PackageManager pm = context.getPackageManager();
 
         pm.setComponentEnabledSetting(receiverForTimer, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
     }
 
 
@@ -431,6 +437,7 @@ public class MainActivity extends FragmentActivity
         bindService(mainIntentForService, serviceConnection, 0);
     }
 
+    // TODO: Stop Service
     private void stopServiceForMailCheck() {
         stopService(mainIntentForService);
     }
