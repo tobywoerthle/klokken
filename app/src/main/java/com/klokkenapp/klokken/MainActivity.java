@@ -53,32 +53,24 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
-    GoogleAccountCredential mCredential;
-    private TextView mOutputText;
-    private Button mCallApiButton;
+
+    public GoogleAccountCredential mCredential;
 
     public static final String ClassName = "MainActivity";
 
     private static Intent mainIntentForService;
-
-    ProgressDialog mProgress;
 
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
-    private static final String BUTTON_TEXT = "Call Gmail API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS};
     private static Bundle savedInstanceState;
     private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
-
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     private GoogleApiClient client;
+    private ServiceConnection serviceConnection;
 
     /**
      * Create the main activity.
@@ -101,9 +93,9 @@ public class MainActivity extends FragmentActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
         //setAlarm();
-        enableBootReceiver();
         makeBroadcastReceiver();
         getResultsFromApi();
+        enableBootReceiver();
     }
 
     public void handleFragments(Boolean add, GmailMessage inGmailMessage) {
@@ -141,22 +133,6 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("Main Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -164,7 +140,6 @@ public class MainActivity extends FragmentActivity
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.connect();
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
     @Override
@@ -173,7 +148,6 @@ public class MainActivity extends FragmentActivity
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
         client.disconnect();
     }
 
@@ -186,51 +160,11 @@ public class MainActivity extends FragmentActivity
     }
     */
 
-    /*
-    public class BootReceiverForTimer extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-                setAlarm();
-            }
-        }
-    }
-    */
-
-
     private AlarmManager alarmMgr;
     private PendingIntent alarmIntent;
     private static final int AlarmWakeUp = 1;
 
     //TODO: Figure out alarm
-
-    private void setAlarm() {
-
-        Context context = getApplicationContext();
-
-        alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, ServiceKlokken.class);
-        alarmIntent = PendingIntent.getService(context, AlarmWakeUp, intent, 0);
-
-        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + 3000,
-                3000, alarmIntent);
-
-        Toast.makeText(this, "Alarm set!", Toast.LENGTH_LONG).show();
-        Log.d(ClassName, "Alarm set!");
-
-        //cancelAlarm();
-        //Toast.makeText(this, "Alarm cancelled!", Toast.LENGTH_LONG).show();
-        //Log.d(ClassName, "Alarm cancelled!");
-    }
-
-    private void cancelAlarm() {
-        // If the alarm has been set, cancel it.
-        if (alarmMgr != null) {
-            alarmMgr.cancel(alarmIntent);
-        }
-    }
 
     /* --------------- Boot Receiver* ---------------*/
 
@@ -245,6 +179,14 @@ public class MainActivity extends FragmentActivity
         pm.setComponentEnabledSetting(receiverForTimer, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
 
         Intent intent = new Intent("SetAlarm");
+
+        MainActivityTransfer mainActivityTransfer = new MainActivityTransfer(this);
+
+        intent.putExtra("accountName", mCredential.getSelectedAccountName());
+        intent.putExtra("mainActivityTransfer", mainActivityTransfer);
+
+        Log.d(ClassName, "enableBootReceiver - accountName: "+ mCredential.getSelectedAccountName());
+
         sendBroadcast(intent);
     }
 
@@ -268,7 +210,6 @@ public class MainActivity extends FragmentActivity
     public void buttonManualGmailCheckClick(View v)
     {
         getResultsFromApi();
-        //setAlarm();
     }
 
     public void settingsClick(View v)
@@ -401,8 +342,8 @@ public class MainActivity extends FragmentActivity
 
     private void createNotification(final HashMap<String, GmailMessage> inMessageMap) {
 
-        GmailNotification gmailNotification = new GmailNotification(this, inMessageMap);
-        gmailNotification.createNotification();
+        //GmailNotification gmailNotification = new GmailNotification(serviceKlokken, inMessageMap);
+        //gmailNotification.createNotification();
 
     }
 
@@ -411,19 +352,23 @@ public class MainActivity extends FragmentActivity
         // Unregister since the activity is about to be closed.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         super.onDestroy();
+        unbindService(serviceConnection);
+        Toast.makeText(this, "Service Un-Binded", Toast.LENGTH_LONG).show();
     }
 
     //Make New Service
     private void startServiceForMailCheck() {
         mainIntentForService = new Intent(this, ServiceKlokken.class);
-        GmailAuthTransfer authTransfer = new GmailAuthTransfer(mCredential);
         MainActivityTransfer mainActivityTransfer = new MainActivityTransfer(this);
         //Transfer to ensure main activity is used for OAUTH 2.0 (UserRecoverableAuthIOException)
-        mainIntentForService.putExtra("authTransfer", authTransfer);
         mainIntentForService.putExtra("mainActivityTransfer", mainActivityTransfer);
+
+        Log.d(ClassName, "startServiceForMailCheck - accountName: "+ mCredential.getSelectedAccountName());
+
         startService(mainIntentForService);
+
         //PendingIntent pendingIntendt = new PendingIntent();
-        ServiceConnection serviceConnection = new ServiceConnection() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
 
@@ -464,7 +409,7 @@ public class MainActivity extends FragmentActivity
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
         } else if (!isDeviceOnline()) {
-            mOutputText.setText("No network connection available.");
+            Toast.makeText(this, "No network connection available.", Toast.LENGTH_LONG).show();
         } else {
             //Call service manually
             startServiceForMailCheck();
@@ -524,9 +469,7 @@ public class MainActivity extends FragmentActivity
         switch (requestCode) {
             case REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode != RESULT_OK) {
-                    mOutputText.setText(
-                            "This app requires Google Play Services. Please install " +
-                                    "Google Play Services on your device and relaunch this app.");
+                    Toast.makeText(this, "This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app.", Toast.LENGTH_LONG).show();
                 } else {
                     getResultsFromApi();
                 }

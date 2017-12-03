@@ -48,9 +48,8 @@ public class AlertAcknowledgeDialog extends DialogFragment {
                         if(alertAudio != null){
                             alertAudio.stopRingAudio();
                         }
-
+                        //Mark as read
                         new MessageLabelModifier(mCredential, curGmailMessageThreadID).execute();
-                        //TODO: Do not alert again for this message
                     }
                 })
                 .setNegativeButton(R.string.AlertNegative, new DialogInterface.OnClickListener() {

@@ -2,43 +2,71 @@ package com.klokkenapp.klokken;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.gmail.GmailScopes;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.klokkenapp.klokken.GmailMessageProcessor.*;
 
-public class ServiceKlokken extends IntentService {
+public class ServiceKlokken extends IntentService implements Serializable {
 
     private IBinder mainBinder = new ServiceKlokkenClientCommunication(this);
     private GmailMessageProcessor gmailMessageProcessor;
+    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS};
+    private String accountName;
+    private MainActivity mainActivity;
 
-    public ServiceKlokken() {
-        super("ServiceKlokken");
-    }
+    public ServiceKlokken() {super("ServiceKlokken");}
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        //Do Work Here (non-main Thread)
-
-        GmailAuthTransfer authTransfer = (GmailAuthTransfer) intent.getSerializableExtra("authTransfer");
-        GoogleAccountCredential accountCredential = authTransfer.getCredential();
+        accountName = (String) intent.getSerializableExtra("accountName");
 
         MainActivityTransfer mainActivityTransfer = (MainActivityTransfer) intent.getSerializableExtra("mainActivityTransfer");
-        MainActivity mainActivity = mainActivityTransfer.getMainActivity();
+        mainActivity = mainActivityTransfer.getMainActivity();
 
+        GoogleAccountCredential accountCredential = null;
+
+        if(accountName == null){
+            //Received Intent from MainActivity
+            accountCredential = mainActivity.mCredential;
+        }
+        else{
+            //Received Intent from Boot Receiver
+            accountCredential = GoogleAccountCredential.usingOAuth2(
+                    getApplicationContext(), Arrays.asList(SCOPES))
+                    .setBackOff(new ExponentialBackOff());
+            accountCredential.setSelectedAccountName(accountName);
+        }
+
+        Log.d("ServiceKlokken", "accountName = " + accountName);
+
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //client.connect();
+
+        //Do Work Here (non-main Thread)
+
+        Log.d("ServiceKlokken", "mainActivity: " + mainActivity);
 
         gmailMessageProcessor = new GmailMessageProcessor(accountCredential, this, mainActivity);
         gmailMessageProcessor.startMakeRequestTask();
+
     }
 
     public void gmailMessagesPostAsyncTask(){
@@ -72,7 +100,15 @@ public class ServiceKlokken extends IntentService {
         Intent intent = new Intent("custom-event-name");
         intent.putExtra("gmailMessages", gmailMessages);
 
+        HashMap<String, GmailMessage> messageMap = (HashMap<String, GmailMessage>) gmailMessages.getMessageMap();
+
+        if(messageMap != null){
+            GmailNotification gmailNotification = new GmailNotification(mainActivity,this, messageMap);
+            gmailNotification.createNotification();
+        }
+
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         sendBroadcast(intent);
+
     }
 }

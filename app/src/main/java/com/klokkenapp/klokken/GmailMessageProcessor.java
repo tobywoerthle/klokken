@@ -12,8 +12,6 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
-import com.google.api.services.gmail.model.Label;
-import com.google.api.services.gmail.model.ListLabelsResponse;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
 
@@ -24,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -42,7 +39,6 @@ public class GmailMessageProcessor extends MainActivity {
         return messagesToTransfer;
     }
 
-    private static final String PREF_ACCOUNT_NAME = "accountName";
     private static ServiceKlokken serviceKlokken;
     private static GoogleAccountCredential accountCredential;
     private static MainActivity mainActivity;

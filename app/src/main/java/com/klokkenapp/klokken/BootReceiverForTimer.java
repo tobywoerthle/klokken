@@ -18,14 +18,23 @@ public final class BootReceiverForTimer extends BroadcastReceiver {
     private static AlarmManager alarmMgr;
     private static PendingIntent alarmIntent;
     private static final int AlarmWakeUp = 1;
+    private static String accountName;
+    private static MainActivityTransfer mainActivityTransfer;
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
+        accountName = (String) intent.getSerializableExtra("accountName");
+        mainActivityTransfer = (MainActivityTransfer) intent.getSerializableExtra("mainActivityTransfer");
+
+        Log.d("BootReceiver", "accountName = " + accountName);
+
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
             setAlarm(context);
         }
         else if (intent.getAction().equals("SetAlarm")) {
             Log.d("BootReceiverForTimer", "SetAlarmIntentReceived");
+
             if(alarmMgr == null){
                 setAlarm(context);
             }
@@ -38,6 +47,9 @@ public final class BootReceiverForTimer extends BroadcastReceiver {
 
         alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, ServiceKlokken.class);
+        intent.putExtra("accountName", accountName);
+        intent.putExtra("mainActivityTransfer", mainActivityTransfer);
+
         alarmIntent = PendingIntent.getService(context, AlarmWakeUp, intent, 0);
 
         alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
