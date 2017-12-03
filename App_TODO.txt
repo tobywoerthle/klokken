@@ -6,6 +6,7 @@ Minimum Viable Product:
 1. Auto check in background
 2. Acknowledge
 3. Overlay/gmailNotification
+4. Audio Notification (Ringer) when app in background
 
 ------
 
