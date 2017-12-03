@@ -41,8 +41,6 @@ public final class BootReceiverForTimer extends BroadcastReceiver {
         }
     }
 
-    //TODO: Figure out alarm
-
     public static void setAlarm(Context context) {
 
         alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

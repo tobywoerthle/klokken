@@ -6,28 +6,27 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.util.Log;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
  * Created by Toby on 5/7/2017.
  */
 
-class AlertAudio{
+class AlertAudio implements Serializable{
 
     private static Context mainActivityContext = null;
-
     private static Ringtone ringtone = null;
 
-    public AlertAudio(Context inMainActivityContext) {
+    public AlertAudio(Context inMainActivityContext){
         mainActivityContext = inMainActivityContext;
     }
 
-    public static Context getMainActivityContext() {
-        return mainActivityContext;
-    }
-
     public void vibratePhoneAlert() {
+    /*TODO: Loop vibrate */
+
         Vibrator v = (Vibrator) mainActivityContext.getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 400 milliseconds
         if (v.hasVibrator()) {
@@ -44,7 +43,6 @@ class AlertAudio{
     }
 
     public void ringPhoneAlert() {
-        //stop should be called by other method, once alert is acknowledged
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE );
         ringtone = RingtoneManager.getRingtone(mainActivityContext, notification);
 
@@ -54,6 +52,11 @@ class AlertAudio{
     }
 
     public void stopRingAudio(){
-        ringtone.stop();
+        if(ringtone != null){
+            ringtone.stop();
+        }
+        else{
+            Log.d("AlertAudio", "ringtoneNULL");
+        }
     }
 }

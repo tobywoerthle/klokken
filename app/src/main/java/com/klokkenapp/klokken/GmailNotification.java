@@ -3,7 +3,10 @@ package com.klokkenapp.klokken;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -14,21 +17,17 @@ public class GmailNotification {
     private static HashMap<String, GmailMessage> messageMap;
     private NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
     private static ServiceKlokken serviceKlokken;
+    private static AlertAudio alertAudio;
     private static MainActivity mainActivity;
+    private static Intent resultIntent;
+
+    public GmailNotification(MainActivity inMainActivity, ServiceKlokken inServiceKlokken, final HashMap<String, GmailMessage> inMessageMap) {
+        serviceKlokken = inServiceKlokken;
+        messageMap = inMessageMap;
+        mainActivity = inMainActivity;
+    }
 
     public void createNotification(){
-
-        /* TODO: mainActivity NULL check */
-
-        Intent resultIntent = new Intent(serviceKlokken,  MainActivity.class);
-
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        serviceKlokken,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
 
         inboxStyle.setBigContentTitle("New Klokken Alerts:");
 
@@ -41,6 +40,42 @@ public class GmailNotification {
             inboxStyle.addLine(messageSubject + " - " + parseFrom(messageFrom));
         }
 
+        resultIntent = new Intent(serviceKlokken,  MainActivity.class);
+
+        if(messageMap.size() != 0){
+
+            Context context = serviceKlokken;
+            AudioManager audio = (AudioManager) serviceKlokken.getSystemService(Context.AUDIO_SERVICE);
+
+            alertAudio = new AlertAudio(context);
+            resultIntent.putExtra("alertAudio", alertAudio);
+
+            switch(audio.getRingerMode() ){
+                case AudioManager.RINGER_MODE_NORMAL:
+                    alertAudio.ringPhoneAlert();
+                    break;
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    alertAudio.vibratePhoneAlert();
+                    break;
+                case AudioManager.RINGER_MODE_SILENT:
+                    break;
+            }
+
+            if(mainActivity != null){
+                mainActivity.setAlertAudio(alertAudio);
+            }
+        }
+
+        resultIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        serviceKlokken,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
         if(messageMap.size() > 1){
 
             NotificationCompat.Builder mBuilder =
@@ -50,6 +85,7 @@ public class GmailNotification {
                             .setContentText(messageMap.size() +" alerts")
                             .setGroup("GmailNotification")
                             .setGroupSummary(true)
+                            .setAutoCancel(true)
                             .setStyle(inboxStyle);
 
             mBuilder.setContentIntent(resultPendingIntent);
@@ -63,17 +99,12 @@ public class GmailNotification {
                     new NotificationCompat.Builder(serviceKlokken)
                             .setSmallIcon(R.drawable.ic_launcher)
                             .setContentTitle("New Klokken Alerts:")
+                            .setAutoCancel(true)
                             .setContentText(messageSubject + " - " + parseFrom(messageFrom));
             mBuilder.setContentIntent(resultPendingIntent);
             NotificationManager mNotifyMgr = (NotificationManager) serviceKlokken.getSystemService(serviceKlokken.NOTIFICATION_SERVICE);
             mNotifyMgr.notify(1, mBuilder.build());
         }
-    }
-
-    public GmailNotification(MainActivity inMainActivity, ServiceKlokken inServiceKlokken, final HashMap<String, GmailMessage> inMessageMap) {
-        mainActivity = inMainActivity;
-        serviceKlokken = inServiceKlokken;
-        messageMap = inMessageMap;
     }
 
     private String parseFrom(String inMessageFrom) {

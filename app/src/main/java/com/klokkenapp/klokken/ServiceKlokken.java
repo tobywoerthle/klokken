@@ -23,10 +23,11 @@ import static com.klokkenapp.klokken.GmailMessageProcessor.*;
 public class ServiceKlokken extends IntentService implements Serializable {
 
     private IBinder mainBinder = new ServiceKlokkenClientCommunication(this);
-    private GmailMessageProcessor gmailMessageProcessor;
+    private static GmailMessageProcessor gmailMessageProcessor;
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS};
-    private String accountName;
-    private MainActivity mainActivity;
+    private static String accountName;
+    private static MainActivity mainActivity;
+    private static GmailNotification gmailNotification;
 
     public ServiceKlokken() {super("ServiceKlokken");}
 
@@ -103,7 +104,7 @@ public class ServiceKlokken extends IntentService implements Serializable {
         HashMap<String, GmailMessage> messageMap = (HashMap<String, GmailMessage>) gmailMessages.getMessageMap();
 
         if(messageMap != null){
-            GmailNotification gmailNotification = new GmailNotification(mainActivity,this, messageMap);
+            gmailNotification = new GmailNotification(mainActivity,this, messageMap);
             gmailNotification.createNotification();
         }
 
