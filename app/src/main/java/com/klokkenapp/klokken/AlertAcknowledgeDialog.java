@@ -30,13 +30,6 @@ public class AlertAcknowledgeDialog extends DialogFragment {
         curGmailMessageSubject = inCurGmailMessageSubject;
     }
 
-    //Vibrate or Silent constructor
-    public AlertAcknowledgeDialog(GoogleAccountCredential inMCredential, String inCurGmailMessageThreadID, String inCurGmailMessageSubject) {
-        mCredential = inMCredential;
-        curGmailMessageThreadID = inCurGmailMessageThreadID;
-        curGmailMessageSubject = inCurGmailMessageSubject;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 

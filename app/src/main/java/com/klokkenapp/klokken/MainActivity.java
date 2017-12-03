@@ -27,6 +27,8 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -71,6 +73,7 @@ public class MainActivity extends FragmentActivity
     private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
     private GoogleApiClient client;
     private ServiceConnection serviceConnection;
+    private static AlertAudio alertAudio;
 
     /**
      * Create the main activity.
@@ -79,9 +82,17 @@ public class MainActivity extends FragmentActivity
      */
     @Override
     protected void onCreate(Bundle inSavedInstanceState) {
+
         savedInstanceState = inSavedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_activity);
+
+        Intent intent = getIntent();
+        alertAudio = (AlertAudio) intent.getSerializableExtra("alertAudio");
+        if(alertAudio != null){
+            //Received Intent from Notification where Main Activity was closed
+            alertAudio.stopRingAudio();
+        }
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -92,7 +103,6 @@ public class MainActivity extends FragmentActivity
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-        //setAlarm();
         makeBroadcastReceiver();
         getResultsFromApi();
         enableBootReceiver();
@@ -163,8 +173,6 @@ public class MainActivity extends FragmentActivity
     private AlarmManager alarmMgr;
     private PendingIntent alarmIntent;
     private static final int AlarmWakeUp = 1;
-
-    //TODO: Figure out alarm
 
     /* --------------- Boot Receiver* ---------------*/
 
@@ -280,10 +288,8 @@ public class MainActivity extends FragmentActivity
     };
 
     private void removeAllFragments() {
-        //TODO: Archive old fragments/messages
 
         for (HashMap.Entry<String, AlertListFragment> curID : allDisplayedMessages.entrySet()){
-            String id = curID.getKey();
             AlertListFragment frag = curID.getValue();
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
@@ -294,31 +300,16 @@ public class MainActivity extends FragmentActivity
     }
 
     private void alertInit(final HashMap<String, GmailMessage> messageMap) {
-        //TODO: GmailNotification broadcast
-        //TODO: Dialog to dismiss/snooze
-        //TODO: Add custom ringtone
-
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
 
                 Context context = getApplicationContext();
-                AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                AlertAudio alertAudio = new AlertAudio(context);
+                //AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                //AlertAudio.NestedStaticClass alertAudio = new AlertAudio.NestedStaticClass(context);
 
-                switch(audio.getRingerMode() ){
-                    case AudioManager.RINGER_MODE_NORMAL:
-                        alertAudio.ringPhoneAlert();
-                        showAlert(alertAudio, messageMap);
-                        break;
-                    case AudioManager.RINGER_MODE_VIBRATE:
-                        alertAudio.vibratePhoneAlert();
-                        showAlert(null, messageMap);
-                        break;
-                    case AudioManager.RINGER_MODE_SILENT:
-                        showAlert(null, messageMap);
-                        break;
-                }
+                showAlert(messageMap);
+
             }
         });
     }
@@ -327,9 +318,7 @@ public class MainActivity extends FragmentActivity
     private String curGmailMessageThreadID;
     private String curGmailMessageSubject;
 
-    private void showAlert(final AlertAudio alertAudio, final HashMap<String, GmailMessage> messageMap){
-
-        createNotification(messageMap);
+    private void showAlert(final HashMap<String, GmailMessage> messageMap){
 
         for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()) {
             curGmailMessageThreadID = entry.getValue().getThreadID();
@@ -338,13 +327,6 @@ public class MainActivity extends FragmentActivity
             AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, curGmailMessageThreadID, curGmailMessageSubject);
             newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
         }
-    }
-
-    private void createNotification(final HashMap<String, GmailMessage> inMessageMap) {
-
-        //GmailNotification gmailNotification = new GmailNotification(serviceKlokken, inMessageMap);
-        //gmailNotification.createNotification();
-
     }
 
     @Override
@@ -382,7 +364,6 @@ public class MainActivity extends FragmentActivity
         bindService(mainIntentForService, serviceConnection, 0);
     }
 
-    // TODO: Stop Service
     private void stopServiceForMailCheck() {
         stopService(mainIntentForService);
     }
@@ -598,6 +579,10 @@ public class MainActivity extends FragmentActivity
                 connectionStatusCode,
                 REQUEST_GOOGLE_PLAY_SERVICES);
         dialog.show();
+    }
+
+    public void setAlertAudio(AlertAudio alertAudio) {
+        this.alertAudio = alertAudio;
     }
 
 }
