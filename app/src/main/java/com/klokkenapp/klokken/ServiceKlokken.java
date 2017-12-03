@@ -25,7 +25,6 @@ public class ServiceKlokken extends IntentService implements Serializable {
     private IBinder mainBinder = new ServiceKlokkenClientCommunication(this);
     private GmailMessageProcessor gmailMessageProcessor;
     private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS};
-    private GoogleApiClient client;
     private String accountName;
     private MainActivity mainActivity;
 
@@ -35,33 +34,33 @@ public class ServiceKlokken extends IntentService implements Serializable {
     protected void onHandleIntent(Intent intent) {
 
         accountName = (String) intent.getSerializableExtra("accountName");
-        Log.d("ServiceKlokken", "accountName = " + accountName);
 
-        GoogleAccountCredential accountCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
+        MainActivityTransfer mainActivityTransfer = (MainActivityTransfer) intent.getSerializableExtra("mainActivityTransfer");
+        mainActivity = mainActivityTransfer.getMainActivity();
 
-        if (accountName != null) {
-            accountCredential.setSelectedAccountName(accountName);
+        GoogleAccountCredential accountCredential = null;
+
+        if(accountName == null){
+            //Received Intent from MainActivity
+            accountCredential = mainActivity.mCredential;
         }
         else{
-            Log.d("ServiceKlokken", "accountName == null");
+            //Received Intent from Boot Receiver
+            accountCredential = GoogleAccountCredential.usingOAuth2(
+                    getApplicationContext(), Arrays.asList(SCOPES))
+                    .setBackOff(new ExponentialBackOff());
+            accountCredential.setSelectedAccountName(accountName);
         }
+
+        Log.d("ServiceKlokken", "accountName = " + accountName);
+
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-        client.connect();
+        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        //client.connect();
 
         //Do Work Here (non-main Thread)
-
-        //GmailAuthTransfer authTransfer = (GmailAuthTransfer) intent.getSerializableExtra("authTransfer");
-        //GoogleAccountCredential accountCredential = authTransfer.getCredential();
-
-        MainActivityTransfer mainActivityTransfer = (MainActivityTransfer) intent.getSerializableExtra("mainActivityTransfer");
-
-
-        mainActivity = mainActivityTransfer.getMainActivity();
 
         Log.d("ServiceKlokken", "mainActivity: " + mainActivity);
 
@@ -110,35 +109,6 @@ public class ServiceKlokken extends IntentService implements Serializable {
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
         sendBroadcast(intent);
-
-        /*
-        if(background){
-
-            Log.d("ServiceKlokken", "background start");
-
-            Intent resultIntent = new Intent(this, ServiceKlokken.class);
-
-            PendingIntent resultPendingIntent =
-                    PendingIntent.getActivity(
-                            this,
-                            0,
-                            resultIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT
-                    );
-
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_launcher)
-                            .setContentTitle("New Klokken Alerts:")
-                            .setContentText("Test");
-            mBuilder.setContentIntent(resultPendingIntent);
-            NotificationManager mNotifyMgr = (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
-            mNotifyMgr.notify(1, mBuilder.build());
-
-            Log.d("ServiceKlokken", "background stop");
-
-        }
-        */
 
     }
 }

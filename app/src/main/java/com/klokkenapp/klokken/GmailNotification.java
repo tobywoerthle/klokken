@@ -18,11 +18,13 @@ public class GmailNotification {
 
     public void createNotification(){
 
+        /* TODO: mainActivity NULL check */
+
         Intent resultIntent = new Intent(serviceKlokken,  MainActivity.class);
 
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
-                        mainActivity.getApplicationContext(),
+                        serviceKlokken,
                         0,
                         resultIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
@@ -56,7 +58,7 @@ public class GmailNotification {
             // Builds the notification and issues it.
             mNotifyMgr.notify(1, mBuilder.build());
         }
-        else {
+        else if(messageMap.size() != 0){
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(serviceKlokken)
                             .setSmallIcon(R.drawable.ic_launcher)

@@ -70,6 +70,7 @@ public class MainActivity extends FragmentActivity
     private static Bundle savedInstanceState;
     private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
     private GoogleApiClient client;
+    private ServiceConnection serviceConnection;
 
     /**
      * Create the main activity.
@@ -351,12 +352,13 @@ public class MainActivity extends FragmentActivity
         // Unregister since the activity is about to be closed.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         super.onDestroy();
+        unbindService(serviceConnection);
+        Toast.makeText(this, "Service Un-Binded", Toast.LENGTH_LONG).show();
     }
 
     //Make New Service
     private void startServiceForMailCheck() {
         mainIntentForService = new Intent(this, ServiceKlokken.class);
-        GmailAuthTransfer authTransfer = new GmailAuthTransfer(mCredential);
         MainActivityTransfer mainActivityTransfer = new MainActivityTransfer(this);
         //Transfer to ensure main activity is used for OAUTH 2.0 (UserRecoverableAuthIOException)
         mainIntentForService.putExtra("mainActivityTransfer", mainActivityTransfer);
@@ -366,7 +368,7 @@ public class MainActivity extends FragmentActivity
         startService(mainIntentForService);
 
         //PendingIntent pendingIntendt = new PendingIntent();
-        ServiceConnection serviceConnection = new ServiceConnection() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
 
