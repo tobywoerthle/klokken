@@ -76,13 +76,15 @@ public class ServiceKlokken extends IntentService implements Serializable {
     }
 
     private void publishResults(GmailMessagesTransfer gmailMessages){
-        Toast.makeText(this, "Mail check complete", Toast.LENGTH_SHORT).show();
+
+        if(mainActivityInitiated){
+            Toast.makeText(this, "Mail check complete", Toast.LENGTH_SHORT).show();
+        }
 
         Intent intent = new Intent("custom-event-name");
         intent.putExtra("gmailMessages", gmailMessages);
 
         HashMap<String, GmailMessage> messageMap = (HashMap<String, GmailMessage>) gmailMessages.getMessageMap();
-
 
         if(messageMap != null){
             gmailNotification = new GmailNotification(mainActivity,this, messageMap, mainActivityInitiated);

@@ -56,8 +56,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
 
-    /* TODO: Mail check done message: no toast when main activity closed */
-
     public GoogleAccountCredential mCredential;
 
     public static final String ClassName = "MainActivity";

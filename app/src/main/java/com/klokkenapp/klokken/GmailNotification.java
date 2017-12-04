@@ -14,8 +14,6 @@ import java.util.HashMap;
 
 public class GmailNotification {
 
-    /*TODO: No Notification if on MainActivity */
-
     private static HashMap<String, GmailMessage> messageMap;
     private NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
     private static ServiceKlokken serviceKlokken;

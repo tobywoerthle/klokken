@@ -25,7 +25,7 @@ class AlertAudio implements Serializable{
     }
 
     public void vibratePhoneAlert() {
-    /*TODO: Loop vibrate */
+    /*TODO: Loop vibrate - create array of ringtone objects, loop through and play. Set up stop */
 
         Vibrator v = (Vibrator) mainActivityContext.getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 400 milliseconds
@@ -45,8 +45,6 @@ class AlertAudio implements Serializable{
     public void ringPhoneAlert() {
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE );
         ringtone = RingtoneManager.getRingtone(mainActivityContext, notification);
-
-        ringtone.play();
         //SystemClock.sleep(9000);
         //r.stop();
     }
