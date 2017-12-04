@@ -14,17 +14,21 @@ import java.util.HashMap;
 
 public class GmailNotification {
 
+    /*TODO: No Notification if on MainActivity */
+
     private static HashMap<String, GmailMessage> messageMap;
     private NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
     private static ServiceKlokken serviceKlokken;
     private static AlertAudio alertAudio;
     private static MainActivity mainActivity;
     private static Intent resultIntent;
+    private static boolean mainActivityInitiated;
 
-    public GmailNotification(MainActivity inMainActivity, ServiceKlokken inServiceKlokken, final HashMap<String, GmailMessage> inMessageMap) {
+    public GmailNotification(MainActivity inMainActivity, ServiceKlokken inServiceKlokken, final HashMap<String, GmailMessage> inMessageMap, Boolean inMainActivityInitiated) {
         serviceKlokken = inServiceKlokken;
         messageMap = inMessageMap;
         mainActivity = inMainActivity;
+        mainActivityInitiated = inMainActivityInitiated;
     }
 
     public void createNotification(){
@@ -76,7 +80,7 @@ public class GmailNotification {
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
 
-        if(messageMap.size() > 1){
+        if((messageMap.size() > 1) && (mainActivityInitiated == false)){
 
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(serviceKlokken)
@@ -94,7 +98,7 @@ public class GmailNotification {
             // Builds the notification and issues it.
             mNotifyMgr.notify(1, mBuilder.build());
         }
-        else if(messageMap.size() != 0){
+        else if(messageMap.size() != 0 && (mainActivityInitiated == false)){
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(serviceKlokken)
                             .setSmallIcon(R.drawable.ic_launcher)
