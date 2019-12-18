@@ -1,8 +1,6 @@
 package com.klokkenapp.klokken;
 
-import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -14,10 +12,7 @@ import com.google.api.services.gmail.GmailScopes;
 
 import android.Manifest;
 import android.accounts.AccountManager;
-import android.app.AlarmManager;
 import android.app.Dialog;
-import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,24 +21,17 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.SystemClock;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Arrays;
@@ -68,7 +56,7 @@ public class MainActivity extends FragmentActivity
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {GmailScopes.GMAIL_LABELS};
+    private static final String[] SCOPES = {GmailScopes.GMAIL_READONLY, GmailScopes.GMAIL_LABELS};
     private static Bundle savedInstanceState;
     private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
     private GoogleApiClient client;
@@ -136,9 +124,13 @@ public class MainActivity extends FragmentActivity
             newFragment.setArguments(getIntent().getExtras());
 
             // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, newFragment).commit();
 
+            try {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, newFragment).commit();
+            } catch (IllegalStateException ignored) {
+                // There's no way to avoid getting this if saveInstanceState has already been called.
+            }
             allDisplayedMessages.put(curMessageID, newFragment);
         }
     }
@@ -169,10 +161,6 @@ public class MainActivity extends FragmentActivity
         System.out.println("The following error occurred: UserRecoverableAuthIOException");
     }
     */
-
-    private AlarmManager alarmMgr;
-    private PendingIntent alarmIntent;
-    private static final int AlarmWakeUp = 1;
 
     /* --------------- Boot Receiver* ---------------*/
 
@@ -225,10 +213,7 @@ public class MainActivity extends FragmentActivity
         Intent myIntent = new Intent(this, SettingsActivity.class);
         startActivity(myIntent);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //String syncConnPref = sharedPref.getString(SettingsActivity.KEY_PREF_SYNC_CONN, "");
-
-        allDisplayedMessages = new HashMap<String, AlertListFragment>();
+        //allDisplayedMessages = new HashMap<String, AlertListFragment>();
     }
 
     public void filterClick(View v)
@@ -291,11 +276,15 @@ public class MainActivity extends FragmentActivity
 
         for (HashMap.Entry<String, AlertListFragment> curID : allDisplayedMessages.entrySet()){
             AlertListFragment frag = curID.getValue();
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .remove(frag).commit();
-        }
 
+            try {
+                getSupportFragmentManager().beginTransaction()
+                        .remove(frag).commit();
+            } catch (IllegalStateException ignored) {
+                // There's no way to avoid getting this if saveInstanceState has already been called.
+            }
+
+        }
         allDisplayedMessages = new HashMap<String, AlertListFragment>();
     }
 

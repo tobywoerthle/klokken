@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -50,14 +52,23 @@ public final class BootReceiverForTimer extends BroadcastReceiver {
 
         alarmIntent = PendingIntent.getService(context, AlarmWakeUp, intent, 0);
 
-        alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + 3000,
-                3000, alarmIntent);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mainActivityTransfer.getMainActivity());
+        String syncConnPref = sharedPref.getString(SettingsActivity.KEY_PREF_SYNC_FREQ, "15");
+        int freqInMilSec = Integer.parseInt(syncConnPref);
+        freqInMilSec = freqInMilSec * 60000;
 
-        Toast.makeText(context, "Alarm set!", Toast.LENGTH_LONG).show();
-        Log.d("BootReceiverForTimer", "Alarm set!");
+        Log.d("BootReceiverForTimer", "SyncFreq: " + syncConnPref);
 
-        //cancelAlarm();
+        if(freqInMilSec > 0){
+            alarmMgr.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + freqInMilSec,
+                    freqInMilSec, alarmIntent);
+            Toast.makeText(context, "Alarm set!", Toast.LENGTH_LONG).show();
+            Log.d("BootReceiverForTimer", "Alarm set!");
+        }
+        else{
+            cancelAlarm();
+        }
     }
 
     private static void cancelAlarm() {
@@ -66,5 +77,4 @@ public final class BootReceiverForTimer extends BroadcastReceiver {
             alarmMgr.cancel(alarmIntent);
         }
     }
-
 }

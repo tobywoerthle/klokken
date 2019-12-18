@@ -1,9 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="autoCheck_switch"
-        android:title="@string/pref_title_gmail_auto_check"/>
+    <PreferenceCategory
+        android:title="@string/pref_gmail_title"
+        android:key="pref_key_gmail_settings">
 
     <SwitchPreference
         android:defaultValue="true"
@@ -24,5 +23,6 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_title_check_frequency"
         android:summary="%s" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

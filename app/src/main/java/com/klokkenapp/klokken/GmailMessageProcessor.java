@@ -250,6 +250,8 @@ public class GmailMessageProcessor extends MainActivity {
                 } else {
                     System.out.println("The following error occurred:\n"
                             + mLastError.getMessage());
+                    mLastError.printStackTrace();
+                    System.out.println(mLastError.getCause());
                 }
             } else {
                 System.out.println("Request cancelled.");

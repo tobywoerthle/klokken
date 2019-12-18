@@ -3,7 +3,7 @@ package com.klokkenapp.klokken;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -37,7 +37,7 @@ public class ServiceKlokken extends IntentService implements Serializable {
 
         GoogleAccountCredential accountCredential;
 
-        if((accountName != null) && (mainActivity == null)){
+        if((accountName != null) || (mainActivity == null)){
             //Received Intent from Boot Receiver
             accountCredential = GoogleAccountCredential.usingOAuth2(
                     getApplicationContext(), Arrays.asList(SCOPES))

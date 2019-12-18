@@ -5,24 +5,18 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.ActionBar;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.text.TextUtils;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import androidx.core.app.NavUtils;
 
 import java.util.List;
 
@@ -39,6 +33,9 @@ import java.util.List;
  */
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    public static final String KEY_PREF_SYNC_FREQ = "sync_frequency";
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -178,4 +175,5 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
     }
+
 }
