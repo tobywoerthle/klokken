@@ -13,6 +13,8 @@ import com.google.api.services.gmail.GmailScopes;
 import android.Manifest;
 import android.accounts.AccountManager;
 import android.app.Dialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -44,6 +47,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
 
+    private static final String CHANNEL_ID = "Main";
     public GoogleAccountCredential mCredential;
 
     public static final String ClassName = "MainActivity";
@@ -76,6 +80,7 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.activity_main_activity);
 
         Intent intent = getIntent();
+        createNotificationChannel();
         alertAudio = (AlertAudio) intent.getSerializableExtra("alertAudio");
         if(alertAudio != null){
             //Received Intent from Notification where Main Activity was closed
@@ -95,6 +100,23 @@ public class MainActivity extends FragmentActivity
         getResultsFromApi();
         enableBootReceiver();
     }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
     public void handleFragments(Boolean add, GmailMessage inGmailMessage) {
 
@@ -574,4 +596,7 @@ public class MainActivity extends FragmentActivity
         MainActivity.alertAudio = alertAudio;
     }
 
+    public String getChannelID() {
+        return CHANNEL_ID;
+    }
 }

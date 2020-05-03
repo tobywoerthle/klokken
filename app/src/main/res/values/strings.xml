@@ -19,6 +19,8 @@
     <string name="AlertAcknowledgeAlertsMessage">Acknowledge Alert?</string>
     <string name="AlertPositive">ACKNOWLEDGE</string>
     <string name="AlertNegative">IGNORE</string>
+    <string name="channel_name">Alerts</string>
+    <string name="channel_description">MainAlerts</string>
 
     <string-array name="pref_check_frequency_titles">
         <item>5 minutes</item>
