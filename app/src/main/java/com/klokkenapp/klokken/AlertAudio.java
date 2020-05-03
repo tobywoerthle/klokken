@@ -45,6 +45,7 @@ class AlertAudio implements Serializable{
     public void ringPhoneAlert() {
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE );
         ringtone = RingtoneManager.getRingtone(mainActivityContext, notification);
+        ringtone.play();
         //SystemClock.sleep(9000);
         //r.stop();
     }

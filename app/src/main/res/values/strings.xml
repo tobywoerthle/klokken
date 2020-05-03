@@ -5,7 +5,7 @@
 
     <!-- Strings related to Overview Alerts -->
     <string name="tool_bar_title_alerts">Alerts</string>
-    <string name="button_call_alerts">Call</string>
+    <string name="button_call_alerts">Refresh</string>
 
     <!-- Strings related to Settings -->
     <string name="title_activity_settings">Settings</string>

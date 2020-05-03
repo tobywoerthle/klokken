@@ -56,9 +56,9 @@ public class MainActivity extends FragmentActivity
     static final int REQUEST_PERMISSION_GET_ACCOUNTS = 1003;
 
     private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {GmailScopes.GMAIL_READONLY, GmailScopes.GMAIL_LABELS};
+    private static final String[] SCOPES = {GmailScopes.GMAIL_READONLY, GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_MODIFY};
     private static Bundle savedInstanceState;
-    private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<String, AlertListFragment>();
+    private static HashMap<String, AlertListFragment> allDisplayedMessages = new HashMap<>();
     private GoogleApiClient client;
     private ServiceConnection serviceConnection;
     private static AlertAudio alertAudio;
@@ -285,7 +285,7 @@ public class MainActivity extends FragmentActivity
             }
 
         }
-        allDisplayedMessages = new HashMap<String, AlertListFragment>();
+        allDisplayedMessages = new HashMap<>();
     }
 
     private void alertInit(final HashMap<String, GmailMessage> messageMap) {
@@ -303,7 +303,7 @@ public class MainActivity extends FragmentActivity
         });
     }
 
-    //Need to be Gloabl because used in an inner class (AlertAcknowledgeDialog)
+    //Need to be Global because used in an inner class (AlertAcknowledgeDialog)
     private String curGmailMessageThreadID;
     private String curGmailMessageSubject;
 
@@ -571,7 +571,7 @@ public class MainActivity extends FragmentActivity
     }
 
     public void setAlertAudio(AlertAudio alertAudio) {
-        this.alertAudio = alertAudio;
+        MainActivity.alertAudio = alertAudio;
     }
 
 }
