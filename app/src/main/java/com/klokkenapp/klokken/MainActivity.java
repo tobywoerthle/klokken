@@ -25,10 +25,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -47,7 +47,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends FragmentActivity
         implements EasyPermissions.PermissionCallbacks {
 
-    private static final String CHANNEL_ID = "Main";
+    public static final String CHANNEL_ID = "Main";
     public GoogleAccountCredential mCredential;
 
     public static final String ClassName = "MainActivity";
@@ -80,7 +80,7 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.activity_main_activity);
 
         Intent intent = getIntent();
-        createNotificationChannel();
+        ensureNotificationChannel(this);
         alertAudio = (AlertAudio) intent.getSerializableExtra("alertAudio");
         if(alertAudio != null){
             //Received Intent from Notification where Main Activity was closed
@@ -101,24 +101,25 @@ public class MainActivity extends FragmentActivity
         enableBootReceiver();
     }
 
-    private void createNotificationChannel() {
+    public static void ensureNotificationChannel(Context context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
+            CharSequence name = context.getString(R.string.channel_name);
+            String description = context.getString(R.string.channel_description);
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);
         }
     }
 
 
-    public void handleFragments(Boolean add, GmailMessage inGmailMessage) {
+    public void handleFragments(Boolean add, MailMessage inMailMessage) {
 
         System.out.println("handleFragmentsCalled--------------------------------");
 
@@ -127,7 +128,7 @@ public class MainActivity extends FragmentActivity
         // the fragment_container FrameLayout
         if (findViewById(R.id.fragment_container) != null || add) {
 
-            String curMessageID = inGmailMessage.getMessageID();
+            String curMessageID = inMailMessage.getProvider() + ":" + inMailMessage.getMessageID();
 
             // However, if we're being restored from a previous state,
             // then we don't need to do anything and should return or else
@@ -139,7 +140,7 @@ public class MainActivity extends FragmentActivity
             // Create a new Fragment to be placed in the activity layout
             AlertListFragment newFragment = new AlertListFragment();
             //Set the Gmail message that contains the information for the fragment
-            newFragment.setGmailMessage(inGmailMessage);
+            newFragment.setMailMessage(inMailMessage);
 
             // In case this activity was started with special instructions from an
             // Intent, pass the Intent's extras to the fragment as arguments
@@ -163,7 +164,9 @@ public class MainActivity extends FragmentActivity
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
+        if (isGmailProviderSelected()) {
+            client.connect();
+        }
     }
 
     @Override
@@ -172,7 +175,9 @@ public class MainActivity extends FragmentActivity
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.disconnect();
+        if (client.isConnected()) {
+            client.disconnect();
+        }
     }
 
     /*
@@ -225,7 +230,7 @@ public class MainActivity extends FragmentActivity
      * @param v the view that called the function
      */
 
-    public void buttonManualGmailCheckClick(View v)
+    public void buttonManualMailCheckClick(View v)
     {
         getResultsFromApi();
     }
@@ -254,9 +259,13 @@ public class MainActivity extends FragmentActivity
         @Override
         public void onReceive(Context context, Intent intentIn) {
             // Get extra data included in the Intent
-            GmailMessagesTransfer inGmailMessageTransfer = (GmailMessagesTransfer) intentIn.getSerializableExtra("gmailMessages");
-
-            HashMap<String, GmailMessage> messageMap = (HashMap<String, GmailMessage>) inGmailMessageTransfer.getMessageMap();
+            MailMessagesTransfer inMailMessageTransfer =
+                    (MailMessagesTransfer) intentIn.getSerializableExtra("mailMessages");
+            if (inMailMessageTransfer == null) {
+                return;
+            }
+            HashMap<String, MailMessage> messageMap =
+                    (HashMap<String, MailMessage>) inMailMessageTransfer.getMessageMap();
 
             if(messageMap != null){
 
@@ -267,14 +276,14 @@ public class MainActivity extends FragmentActivity
 
                 removeAllFragments();
 
-                for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()){
+                for (HashMap.Entry<String, MailMessage> entry : messageMap.entrySet()){
                     count++;
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject "+count);
-                    GmailMessage curGmailMessage = entry.getValue();
-                    Log.d(ClassName, "BroadcastReceiver.MessageSubject "+curGmailMessage.getMessageSubject());
+                    MailMessage curMailMessage = entry.getValue();
+                    Log.d(ClassName, "BroadcastReceiver.MessageSubject "+curMailMessage.getMessageSubject());
                     Log.d(ClassName, "BroadcastReceiver.MessageSubject");
 
-                    handleFragments(true, curGmailMessage);
+                    handleFragments(true, curMailMessage);
                 }
 
                 if (count != 0){
@@ -310,32 +319,20 @@ public class MainActivity extends FragmentActivity
         allDisplayedMessages = new HashMap<>();
     }
 
-    private void alertInit(final HashMap<String, GmailMessage> messageMap) {
-        AsyncTask.execute(new Runnable() {
+    private void alertInit(final HashMap<String, MailMessage> messageMap) {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
-                Context context = getApplicationContext();
-                //AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                //AlertAudio.NestedStaticClass alertAudio = new AlertAudio.NestedStaticClass(context);
-
                 showAlert(messageMap);
-
             }
         });
     }
 
-    //Need to be Global because used in an inner class (AlertAcknowledgeDialog)
-    private String curGmailMessageThreadID;
-    private String curGmailMessageSubject;
+    private void showAlert(final HashMap<String, MailMessage> messageMap){
 
-    private void showAlert(final HashMap<String, GmailMessage> messageMap){
-
-        for (HashMap.Entry<String, GmailMessage> entry : messageMap.entrySet()) {
-            curGmailMessageThreadID = entry.getValue().getThreadID();
-            curGmailMessageSubject = entry.getValue().getMessageSubject();
-
-            AlertAcknowledgeDialog newFragment = new AlertAcknowledgeDialog(alertAudio, mCredential, curGmailMessageThreadID, curGmailMessageSubject);
+        for (HashMap.Entry<String, MailMessage> entry : messageMap.entrySet()) {
+            AlertAcknowledgeDialog newFragment =
+                    new AlertAcknowledgeDialog(alertAudio, mCredential, entry.getValue());
             newFragment.show(getFragmentManager(), "AlertAcknowledgeDialog");
         }
     }
@@ -345,8 +342,9 @@ public class MainActivity extends FragmentActivity
         // Unregister since the activity is about to be closed.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
         super.onDestroy();
-        unbindService(serviceConnection);
-        Toast.makeText(this, "Service Un-Binded", Toast.LENGTH_LONG).show();
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
     }
 
     //Make New Service
@@ -396,7 +394,18 @@ public class MainActivity extends FragmentActivity
      */
     private void getResultsFromApi() {
 
-        if (!isGooglePlayServicesAvailable()) {
+        String provider = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsActivity.KEY_PREF_MAIL_PROVIDER, MailMessage.PROVIDER_GMAIL);
+        if (MailMessage.PROVIDER_IMAP.equals(provider)) {
+            if (ImapAccountStore.load(this) == null) {
+                Toast.makeText(this, R.string.imap_not_configured, Toast.LENGTH_LONG).show();
+                settingsClick(null);
+            } else if (!isDeviceOnline()) {
+                Toast.makeText(this, "No network connection available.", Toast.LENGTH_LONG).show();
+            } else {
+                startServiceForMailCheck();
+            }
+        } else if (!isGooglePlayServicesAvailable()) {
             acquireGooglePlayServices();
         } else if (mCredential.getSelectedAccountName() == null) {
             chooseAccount();
@@ -544,6 +553,12 @@ public class MainActivity extends FragmentActivity
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    private boolean isGmailProviderSelected() {
+        String provider = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsActivity.KEY_PREF_MAIL_PROVIDER, MailMessage.PROVIDER_GMAIL);
+        return !MailMessage.PROVIDER_IMAP.equals(provider);
     }
 
     /**

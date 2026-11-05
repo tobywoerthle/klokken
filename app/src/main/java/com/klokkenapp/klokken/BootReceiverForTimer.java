@@ -52,7 +52,7 @@ public final class BootReceiverForTimer extends BroadcastReceiver {
 
         alarmIntent = PendingIntent.getService(context, AlarmWakeUp, intent, 0);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mainActivityTransfer.getMainActivity());
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         String syncConnPref = sharedPref.getString(SettingsActivity.KEY_PREF_SYNC_FREQ, "15");
         int freqInMilSec = Integer.parseInt(syncConnPref);
         freqInMilSec = freqInMilSec * 60000;

@@ -34,8 +34,8 @@ import com.google.api.services.gmail.model.MessagePartHeader;
 public class GmailMessageProcessor extends MainActivity {
 
     public static final String ClassName = "GmailMessageProcessor";
-    public Map<String, GmailMessage> messagesToTransfer = new HashMap<>();
-    public Map<String, GmailMessage> getMessages() {
+    public Map<String, MailMessage> messagesToTransfer = new HashMap<>();
+    public Map<String, MailMessage> getMessages() {
         return messagesToTransfer;
     }
 
@@ -109,13 +109,11 @@ public class GmailMessageProcessor extends MainActivity {
 
             List<Message> messagesRaw = queryMessageReturn.getMessages();
 
-            HashMap<String, GmailMessage> curMessages = new HashMap<String, GmailMessage>();
-
             if(messagesRaw != null && messagesRaw.isEmpty() == false){
                 for (Message message : messagesRaw) {
                     Log.d(ClassName, "getDataFromApi.messageIter");
 
-                    GmailMessage curMessage = printMessages(mService, user, message.getId());
+                    MailMessage curMessage = printMessages(mService, user, message.getId());
                     String curThreadID = message.getThreadId();
                     curMessage.setThreadID(curThreadID);
 
@@ -136,7 +134,7 @@ public class GmailMessageProcessor extends MainActivity {
 
         }
 
-        public GmailMessage printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
+        public MailMessage printMessages (com.google.api.services.gmail.Gmail service, String userId, String messageId)
                 throws IOException {
 
             boolean messageDebug = false;
@@ -146,7 +144,8 @@ public class GmailMessageProcessor extends MainActivity {
 
             List<MessagePartHeader> headers = message.getPayload().getHeaders();
 
-            GmailMessage gmailMessage = new GmailMessage();
+            MailMessage gmailMessage = new MailMessage();
+            gmailMessage.setProvider(MailMessage.PROVIDER_GMAIL);
             gmailMessage.setMessageID(messageId);
 
             for (MessagePartHeader header: headers) {

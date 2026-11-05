@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
 
 public class AlertListFragment extends MainActivityFragments {
 
-    private GmailMessage gmailMessage;
+    private MailMessage mailMessage;
 
     private static View mainView;
 
@@ -25,20 +25,20 @@ public class AlertListFragment extends MainActivityFragments {
         super.onActivityCreated(savedInstanceState);
         mainView = getView();
 
-        if(gmailMessage != null){
+        if(mailMessage != null){
             TextView alertListTimeValueText = (TextView) mainView.findViewById(R.id.alertListTimeValue);
             TextView alertListTimeFromText = (TextView) mainView.findViewById(R.id.alertListFromValue);
             TextView alertListTimeSubjectText = (TextView) mainView.findViewById(R.id.alertListSubjectValue);
 
-            alertListTimeValueText.setText(gmailMessage.getMessageReceived());
-            alertListTimeFromText.setText(gmailMessage.getMessageFrom());
-            alertListTimeSubjectText.setText(gmailMessage.getMessageSubject());
+            alertListTimeValueText.setText(mailMessage.getMessageReceived());
+            alertListTimeFromText.setText(mailMessage.getMessageFrom());
+            alertListTimeSubjectText.setText(mailMessage.getMessageSubject());
         }
     }
 
-    public void setGmailMessage(GmailMessage inGmailMessage){
+    public void setMailMessage(MailMessage inMailMessage){
 
-        gmailMessage = inGmailMessage;
+        mailMessage = inMailMessage;
     }
 
 }

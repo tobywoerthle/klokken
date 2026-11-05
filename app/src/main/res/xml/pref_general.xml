@@ -1,8 +1,21 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="@string/pref_gmail_title"
-        android:key="pref_key_gmail_settings">
+        android:title="@string/pref_email_title"
+        android:key="pref_key_email_settings">
+
+    <ListPreference
+        android:defaultValue="gmail"
+        android:entries="@array/pref_mail_provider_titles"
+        android:entryValues="@array/pref_mail_provider_values"
+        android:key="mail_provider"
+        android:title="@string/pref_title_mail_provider"
+        android:summary="%s" />
+
+    <Preference
+        android:key="imap_account_settings"
+        android:title="@string/pref_title_imap_account"
+        android:summary="@string/pref_summary_imap_account" />
 
     <SwitchPreference
         android:defaultValue="true"

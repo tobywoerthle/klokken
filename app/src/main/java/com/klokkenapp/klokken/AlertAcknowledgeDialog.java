@@ -17,17 +17,18 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 public class AlertAcknowledgeDialog extends DialogFragment {
     //TO DO: fix Constructor to not use arguments
 
-    private static AlertAudio alertAudio = null;
-    private static GoogleAccountCredential mCredential = null;
-    private String curGmailMessageThreadID = null;
-    private String curGmailMessageSubject = null;
+    private final AlertAudio alertAudio;
+    private final GoogleAccountCredential mCredential;
+    private final MailMessage mailMessage;
 
     //Ringtone constructor
-    public AlertAcknowledgeDialog(AlertAudio inAlertAudio, GoogleAccountCredential inMCredential, String inCurGmailMessageThreadID, String inCurGmailMessageSubject) {
+    public AlertAcknowledgeDialog(
+            AlertAudio inAlertAudio,
+            GoogleAccountCredential inMCredential,
+            MailMessage inMailMessage) {
         alertAudio = inAlertAudio;
         mCredential = inMCredential;
-        curGmailMessageThreadID = inCurGmailMessageThreadID;
-        curGmailMessageSubject = inCurGmailMessageSubject;
+        mailMessage = inMailMessage;
     }
 
     @Override
@@ -35,14 +36,19 @@ public class AlertAcknowledgeDialog extends DialogFragment {
 
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(getResources().getString(R.string.AlertAcknowledgeAlertsMessage) + ": " + curGmailMessageSubject)
+        builder.setMessage(getResources().getString(R.string.AlertAcknowledgeAlertsMessage)
+                        + ": " + mailMessage.getMessageSubject())
                 .setPositiveButton(R.string.AlertPositive, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if(alertAudio != null){
                             alertAudio.stopRingAudio();
                         }
-                        //Mark as read
-                        new MessageLabelModifier(mCredential, curGmailMessageThreadID).execute();
+                        if (MailMessage.PROVIDER_IMAP.equals(mailMessage.getProvider())) {
+                            new ImapMessageAcknowledger(
+                                    getActivity().getApplicationContext(), mailMessage).execute();
+                        } else {
+                            new MessageLabelModifier(mCredential, mailMessage.getThreadID()).execute();
+                        }
                     }
                 })
                 .setNegativeButton(R.string.AlertNegative, new DialogInterface.OnClickListener() {

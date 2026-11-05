@@ -1,9 +1,11 @@
 package com.klokkenapp.klokken;
 
 import java.io.Serializable;
-import java.util.Map;
 
-public class GmailMessage implements Serializable {
+public class MailMessage implements Serializable {
+
+    public static final String PROVIDER_GMAIL = "gmail";
+    public static final String PROVIDER_IMAP = "imap";
 
     private String messageID = "";
     private String messageFrom = "";
@@ -13,6 +15,8 @@ public class GmailMessage implements Serializable {
     private String messageSubject = "";
     private String messageBody = "";
     private String threadID = "";
+    private String provider = PROVIDER_GMAIL;
+    private String folder = "INBOX";
 
     public String getMessageID() {
         return messageID;
@@ -70,7 +74,27 @@ public class GmailMessage implements Serializable {
         this.messageBody = messageBody;
     }
 
-    public String getThreadID() { return threadID; }
+    public String getThreadID() {
+        return threadID;
+    }
 
-    public void setThreadID(String threadID) { this.threadID = threadID; }
+    public void setThreadID(String threadID) {
+        this.threadID = threadID;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
+    }
 }
