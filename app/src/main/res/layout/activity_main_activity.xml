@@ -37,6 +37,16 @@
             android:textSize="24sp"
             android:textColor="@android:color/white" />
 
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/title_activity_settings"
+            android:onClick="settingsClick"
+            android:src="@drawable/ic_settings_white_48dp" />
+
         <!--<ImageView
             android:layout_gravity="right"
             android:layout_marginRight="10dp"
@@ -83,7 +93,7 @@
             android:layout_marginBottom="10dp"
             android:id="@+id/buttonManualGmailCheck"
             android:background="@color/colorPrimaryLight"
-            android:onClick="buttonManualGmailCheckClick"
+            android:onClick="buttonManualMailCheckClick"
             android:layout_gravity="bottom|right"
             android:elevation="6dp"
             android:textColor="@color/colorPrimary" />

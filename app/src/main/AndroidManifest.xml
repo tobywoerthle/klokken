@@ -74,6 +74,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ImapAccountActivity"
+            android:label="@string/pref_title_imap_account"
+            android:parentActivityName=".SettingsActivity" />
+
     </application>
 
 </manifest>

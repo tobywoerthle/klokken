@@ -35,6 +35,8 @@ import java.util.List;
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static final String KEY_PREF_SYNC_FREQ = "sync_frequency";
+    public static final String KEY_PREF_MAIL_PROVIDER = "mail_provider";
+    public static final String KEY_PREF_IMAP_ACCOUNT = "imap_account_settings";
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -55,7 +57,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 preference.setSummary(
                         index >= 0
                                 ? listPreference.getEntries()[index]
-                                : null);
+                                : (listPreference.getEntries().length > 0
+                                    ? listPreference.getEntries()[0]
+                                    : null));
 
             } else {
                 // For all other preferences, set the summary to the value's
@@ -163,6 +167,39 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
+
+            Preference providerPreference = findPreference(KEY_PREF_MAIL_PROVIDER);
+            if (providerPreference != null) {
+                bindPreferenceSummaryToValue(providerPreference);
+            }
+
+            Preference imapAccountPreference = findPreference(KEY_PREF_IMAP_ACCOUNT);
+            if (imapAccountPreference != null) {
+                imapAccountPreference.setOnPreferenceClickListener(
+                        new Preference.OnPreferenceClickListener() {
+                            @Override
+                            public boolean onPreferenceClick(Preference preference) {
+                                startActivity(new Intent(getActivity(), ImapAccountActivity.class));
+                                return true;
+                            }
+                        });
+                updateImapAccountSummary(imapAccountPreference);
+            }
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            Preference imapAccountPreference = findPreference(KEY_PREF_IMAP_ACCOUNT);
+            if (imapAccountPreference != null) {
+                updateImapAccountSummary(imapAccountPreference);
+            }
+        }
+
+        private void updateImapAccountSummary(Preference preference) {
+            preference.setSummary(ImapAccountStore.load(getActivity()) == null
+                    ? getString(R.string.pref_summary_imap_account)
+                    : getString(R.string.pref_summary_imap_account_configured));
         }
 
         @Override
